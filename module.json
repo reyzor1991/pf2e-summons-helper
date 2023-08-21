@@ -2,7 +2,7 @@
   "id": "pf2e-summons-helper",
   "title": "PF2e Summons Helper",
   "description": "PF2e Summons Helper - notify players about sustain creatures.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "authors": [
     {
       "name": "Reyzor",
@@ -14,8 +14,19 @@
   "esmodules": [
     "pf2e-summons-helper.js"
   ],
-  "styles": [],
+  "styles": [
+    "pf2e-summons-helper.css"
+  ],
   "packs": [
+    {
+      "label": "Summons Effects",
+      "name": "summons-effect",
+      "path": "packs/summons-effect.db",
+      "system": "pf2e",
+      "private": false,
+      "type": "Item",
+      "flags": {}
+    }
   ],
   "media": [],
   "compatibility": {
