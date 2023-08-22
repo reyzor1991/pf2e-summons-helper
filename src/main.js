@@ -9,9 +9,9 @@ Hooks.on('fs-postSummon', async (data) => {
     const {sourceData} = data;
     if (sourceData) {
         const spell = sourceData?.flags?.item;
-        const actor = sourceData?.summonerTokenDocument?.actor;
+        const actor = await fromUuid(`Actor.${sourceData?.summonerTokenDocument?.actorId}`) ;
         if (spell && actor) {
-            const creature = {token: data.tokenDoc._id, tokenName: data.tokenDoc.name, actor: data.tokenDoc.actor.uuid, img: data.tokenDoc.texture.src};
+            const creature = {token: data.tokenDoc._id, tokenName: data.tokenDoc.name, img: data.tokenDoc.texture.src};
             if (spell.system.duration?.value.includes("sustained")) {
                 const sustainedMinions = actor.getFlag(moduleName, "sustainedMinions") ?? [];
                 sustainedMinions.push(creature);
