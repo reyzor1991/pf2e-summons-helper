@@ -101,10 +101,12 @@ $(document).on('click', '.minion-message-item', async function (event) {
 
 $(document).on('click', '.dismiss-minion-item', async function (event) {
     const item = $(this);
-    const tokenUuid = `${game.scenes.current.uuid}.Token.${item.parent().data().tokenId}`;
+    const tokenId = item.parent().data().tokenId;
+    const tokenUuid = `${game.scenes.current.uuid}.Token.${tokenId}`;
     const token = await fromUuid(tokenUuid);
     if (token) {
-        window?.warpgate?.dismiss(item.parent().data().tokenId)
+        window?.warpgate?.dismiss(tokenId);
+        item.parent().remove();
     }
 });
 
