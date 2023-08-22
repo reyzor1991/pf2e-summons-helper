@@ -61,7 +61,8 @@ function createSustainMessage(combatant, minions) {
             <li data-token-id="${m.token}" class="minion-message-item"><img src="${m.img}">
                 <span class="minion-li">
                     <span class="minion-li-text">${m.tokenName}</span>
-                </span>
+                </span> &nbsp; &nbsp;
+                <a class="dismiss-minion-item" title="Dismiss"><i class="fas fa-user-slash"></i>Dismiss</a>
             </li>`;
     });
 
@@ -95,6 +96,15 @@ $(document).on('click', '.minion-message-item', async function (event) {
     if (token) {
         game.canvas.pan({ x: token.x+50, y: token.y+50 })
         token.object.control({ releaseOthers: !event.shiftKey });
+    }
+});
+
+$(document).on('click', '.dismiss-minion-item', async function (event) {
+    const item = $(this);
+    const tokenUuid = `${game.scenes.current.uuid}.Token.${item.parent().data().tokenId}`;
+    const token = await fromUuid(tokenUuid);
+    if (token) {
+        window?.warpgate?.dismiss(item.parent().data().tokenId)
     }
 });
 
