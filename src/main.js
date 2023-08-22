@@ -88,11 +88,30 @@ async function addEffectToMinion(minion, uuid, owner) {
     await minion.createEmbeddedDocuments("Item", [aEffect]);
 }
 
-$(document).on('click', '.minion-message-item', async function () {
+$(document).on('click', '.minion-message-item', async function (event) {
     const item = $(this);
     const tokenUuid = `${game.scenes.current.uuid}.Token.${item.data().tokenId}`;
     const token = await fromUuid(tokenUuid);
     if (token) {
         game.canvas.pan({ x: token.x+50, y: token.y+50 })
+        token.object.control({ releaseOthers: !event.shiftKey });
+    }
+});
+
+$(document).on('mouseenter', '.minion-message-item', async function () {
+    const item = $(this);
+    const tokenUuid = `${game.scenes.current.uuid}.Token.${item.data().tokenId}`;
+    const token = await fromUuid(tokenUuid);
+    if (token) {
+        token.object._onHoverIn({}, {});
+    }
+});
+
+$(document).on('mouseleave', '.minion-message-item', async function () {
+    const item = $(this);
+    const tokenUuid = `${game.scenes.current.uuid}.Token.${item.data().tokenId}`;
+    const token = await fromUuid(tokenUuid);
+    if (token) {
+        token.object._onHoverOut({}, {});
     }
 });

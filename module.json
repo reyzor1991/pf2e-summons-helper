@@ -59,7 +59,7 @@
           "type": "module",
           "manifest": "https://github.com/MrVauxs/foundry-summons/releases/latest/download/module.json",
           "compatibility": {
-              "minimum": "1.5.1"
+              "minimum": "1.5.2"
           }
       }
     ]
