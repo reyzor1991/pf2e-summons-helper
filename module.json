@@ -17,6 +17,20 @@
   "styles": [
     "pf2e-summons-helper.css"
   ],
+  "packFolders": [
+    {
+      "name": "PF2e Summons Helper",
+      "sorting": "m",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "packs": [
+        "summons-effect",
+        "summons-macros"
+      ]
+    }
+  ],
   "packs": [
     {
       "label": "Summons Effects",
@@ -26,13 +40,28 @@
       "private": false,
       "type": "Item",
       "flags": {}
+    },
+    {
+      "label": "Summons Macros",
+      "name": "summons-macros",
+      "path": "packs/summons-macros.db",
+      "system": "pf2e",
+      "private": false,
+      "type": "Macro",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
     }
   ],
   "media": [],
   "compatibility": {
     "minimum": "11",
-    "verified": "11.307"
+    "verified": "11.308"
   },
+  "manifest": "https://drive.usercontent.google.com/download?id=1WIyfV1pmsIXbGtx2BP_mwYGd0ukZcDD4",
+  "download": "https://drive.usercontent.google.com/download?id=14Gz8m118QHAZwRHJnEc6l2w2ZiP642pJ",
   "relationships": {
     "systems": [
       {

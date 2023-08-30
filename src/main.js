@@ -94,7 +94,7 @@ $(document).on('click', '.minion-message-item', async function (event) {
     const tokenUuid = `${game.scenes.current.uuid}.Token.${item.data().tokenId}`;
     const token = await fromUuid(tokenUuid);
     if (token) {
-        game.canvas.pan({ x: token.x+50, y: token.y+50 })
+        game.canvas.pan({ x: token.center.x, y: token.center.y })
         token.object.control({ releaseOthers: !event.shiftKey });
     }
 });

@@ -1,0 +1,1 @@
+{ "_id": "oNcNQPIfO38orIIk", "author": "E9zWf1a6ounUt7Ro", "command": "game.pf2esummonshelper.castRitual(actor, [...game.user.targets.map(t=>t.actor)]);", "img": "systems/pf2e/icons/actions/LongerAction.webp", "name": "Cast ritual", "ownership": { "default": 1 }, "scope": "global", "type": "script" }
