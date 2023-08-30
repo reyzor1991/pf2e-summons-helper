@@ -58,11 +58,14 @@ Hooks.on('pf2e.startTurn', async (combatant, encounter, user_id) => {
 function createSustainMessage(combatant, minions) {
     const minionList = minions.map((m) => {
         return `
-            <li data-token-id="${m.token}" class="minion-message-item"><img src="${m.img}">
+            <li data-token-id="${m.token}" data-owner-id="${combatant.actor.uuid}" class="minion-message-item"><img src="${m.img}">
                 <span class="minion-li">
                     <span class="minion-li-text">${m.tokenName}</span>
                 </span> &nbsp; &nbsp;
-                <a class="dismiss-minion-item" title="Dismiss"><i class="fas fa-user-slash"></i>Dismiss</a>
+                <div>
+                    <a class="dismiss-minion-item" title="Dismiss"><i class="fas fa-user-slash"></i>Dismiss</a>
+                    <a class="sustain-minion-item" title="Dismiss"><i class="fas fa-user"></i>Sustain</a>
+                </div>
             </li>`;
     });
 
@@ -101,12 +104,40 @@ $(document).on('click', '.minion-message-item', async function (event) {
 
 $(document).on('click', '.dismiss-minion-item', async function (event) {
     const item = $(this);
-    const tokenId = item.parent().data().tokenId;
+    const tokenId = item.parent().parent().data().tokenId;
+    const ownerId = item.parent().parent().data().ownerId;
     const tokenUuid = `${game.scenes.current.uuid}.Token.${tokenId}`;
     const token = await fromUuid(tokenUuid);
     if (token) {
         window?.warpgate?.dismiss(tokenId);
-        item.parent().remove();
+        item.parent().parent().remove();
+
+        if (ownerId) {
+            const owner = await fromUuid(ownerId);
+            if (owner) {
+                await owner.itemTypes.action.find(a=>a.slug==='dismiss')?.toMessage()
+            }
+        }
+    }
+});
+
+$(document).on('click', '.sustain-minion-item', async function (event) {
+    const item = $(this);
+    const tokenId = item.parent().parent().data().tokenId;
+    const ownerId = item.parent().parent().data().ownerId;
+    const tokenUuid = `${game.scenes.current.uuid}.Token.${tokenId}`;
+    const token = await fromUuid(tokenUuid);
+    if (token) {
+        item.parent().parent().append(' was sustained');
+        item.parent().parent().find('.dismiss-minion-item').remove();
+        item.parent().parent().find('.sustain-minion-item').remove();
+
+        if (ownerId) {
+            const owner = await fromUuid(ownerId);
+            if (owner) {
+                await owner.itemTypes.action.find(a=>a.slug==='sustain-a-spell')?.toMessage()
+            }
+        }
     }
 });
 
