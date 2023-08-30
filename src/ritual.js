@@ -63,6 +63,7 @@ const ritualList = [
 async function castRitual(actor, targets) {
     console.log(actor);
     console.log(targets);
+    ui.notifications.info("Feature under dev yet");
 };
 
 Hooks.once("init", () => {
