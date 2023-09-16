@@ -90,7 +90,7 @@ async function addEffectToMinion(minion, uuid, owner) {
     aEffect.name += owner.name;
 
     await minion.createEmbeddedDocuments("Item", [aEffect]);
-}
+};
 
 $(document).on('click', '.minion-message-item', async function (event) {
     const item = $(this);
