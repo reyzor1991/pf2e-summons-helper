@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.0.5
+- Fix updating message
+
 ## Version 0.0.4
 
 ### New feature

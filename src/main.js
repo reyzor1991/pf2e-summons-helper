@@ -1,9 +1,31 @@
 const moduleName = "pf2e-summons-helper";
 const minionOwner = "Compendium.pf2e-summons-helper.summons-effect.Item.WZjCOL3vxDHGYPLf";
+let socketlibSocket = undefined;
 
 Hooks.once("init", () => {
     console.log(`${moduleName} was init`)
 });
+
+const setupSocket = () => {
+  if (globalThis.socketlib) {
+      socketlibSocket = globalThis.socketlib.registerModule(moduleName);
+      socketlibSocket.register("updateMessage", updateMessage);
+  }
+  return !!globalThis.socketlib
+}
+
+Hooks.once('setup', function () {
+    if (!setupSocket()) console.error('Error: Unable to set up socket lib for PF2e Summons Helper')
+});
+
+async function updateMessage(id, content) {
+    if (!game.user.isGM) {
+        socketlibSocket._sendRequest("updateMessage", [id, content], 0)
+        return
+    }
+
+    await game.messages.get(id)?.update({content})
+}
 
 Hooks.on('fs-postSummon', async (data) => {
     const {sourceData} = data;
@@ -102,43 +124,46 @@ $(document).on('click', '.minion-message-item', async function (event) {
     }
 });
 
-$(document).on('click', '.dismiss-minion-item', async function (event) {
-    const item = $(this);
-    const tokenId = item.parent().parent().data().tokenId;
-    const ownerId = item.parent().parent().data().ownerId;
-    const tokenUuid = `${game.scenes.current.uuid}.Token.${tokenId}`;
-    const token = await fromUuid(tokenUuid);
-    if (token) {
-        window?.warpgate?.dismiss(tokenId);
-        item.parent().parent().remove();
+Hooks.on("renderChatMessage", async (message, html) => {
+    html.find('.dismiss-minion-item').click(async (event) => {
+        const item = $(event.target);
+        const tokenId = item.parent().parent().data().tokenId;
+        const ownerId = item.parent().parent().data().ownerId;
+        const tokenUuid = `${game.scenes.current.uuid}.Token.${tokenId}`;
+        const token = await fromUuid(tokenUuid);
+        if (token) {
+            window?.warpgate?.dismiss(tokenId);
+            item.parent().parent().remove();
 
-        if (ownerId) {
-            const owner = await fromUuid(ownerId);
-            if (owner) {
-                await owner.itemTypes.action.find(a=>a.slug==='dismiss')?.toMessage()
+            if (ownerId) {
+                const owner = await fromUuid(ownerId);
+                if (owner) {
+                    await owner.itemTypes.action.find(a=>a.slug==='dismiss')?.toMessage()
+                }
             }
+            await updateMessage(message.id, html[0].outerHTML)
         }
-    }
-});
+    });
+    html.find('.sustain-minion-item').click(async (event) => {
+        const item = $(event.target);
+        const tokenId = item.parent().parent().data().tokenId;
+        const ownerId = item.parent().parent().data().ownerId;
+        const tokenUuid = `${game.scenes.current.uuid}.Token.${tokenId}`;
+        const token = await fromUuid(tokenUuid);
+        if (token) {
+            item.parent().parent().append(' was sustained');
+            item.parent().parent().find('.dismiss-minion-item').remove();
+            item.parent().parent().find('.sustain-minion-item').remove();
 
-$(document).on('click', '.sustain-minion-item', async function (event) {
-    const item = $(this);
-    const tokenId = item.parent().parent().data().tokenId;
-    const ownerId = item.parent().parent().data().ownerId;
-    const tokenUuid = `${game.scenes.current.uuid}.Token.${tokenId}`;
-    const token = await fromUuid(tokenUuid);
-    if (token) {
-        item.parent().parent().append(' was sustained');
-        item.parent().parent().find('.dismiss-minion-item').remove();
-        item.parent().parent().find('.sustain-minion-item').remove();
-
-        if (ownerId) {
-            const owner = await fromUuid(ownerId);
-            if (owner) {
-                await owner.itemTypes.action.find(a=>a.slug==='sustain-a-spell')?.toMessage()
+            if (ownerId) {
+                const owner = await fromUuid(ownerId);
+                if (owner) {
+                    await owner.itemTypes.action.find(a=>a.slug==='sustain-a-spell')?.toMessage()
+                }
             }
+            await updateMessage(message.id, html[0].outerHTML)
         }
-    }
+    });
 });
 
 $(document).on('mouseenter', '.minion-message-item', async function () {
