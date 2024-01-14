@@ -33,8 +33,8 @@ Hooks.on('fs-postSummon', async (data) => {
         const spell = sourceData?.flags?.item;
         const actor = await fromUuid(`Actor.${sourceData?.summonerTokenDocument?.actorId}`) ;
         if (spell && actor) {
-            const creature = {token: data.tokenDoc._id, tokenName: data.tokenDoc.name, img: data.tokenDoc.texture.src};
-            if (spell.system.duration?.value.includes("sustained")) {
+            const creature = {token: data.tokenDoc.uuid, tokenName: data.tokenDoc.name, img: data.tokenDoc.texture.src};
+            if (spell.system.duration?.value.includes("sustained") || spell.system.duration?.sustained) {
                 const sustainedMinions = actor.getFlag(moduleName, "sustainedMinions") ?? [];
                 sustainedMinions.push(creature);
                 actor.setFlag(moduleName, "sustainedMinions", sustainedMinions);
@@ -55,10 +55,10 @@ Hooks.on('deleteToken', async (token) => {
     if (master) {
         master = await fromUuid(master);
         const cursMins = master.getFlag(moduleName, "sustainedMinions") ?? [];
-        master.setFlag(moduleName, "sustainedMinions", cursMins.filter(a=>a.token!=token.id));
+        master.setFlag(moduleName, "sustainedMinions", cursMins.filter(a=>a.token!=token.uuid));
 
         const curMins = master.getFlag(moduleName, "minions") ?? [];
-        master.setFlag(moduleName, "minions", curMins.filter(a=>a.token!=token.id));
+        master.setFlag(moduleName, "minions", curMins.filter(a=>a.token!=token.uuid));
     }
 });
 
@@ -116,8 +116,7 @@ async function addEffectToMinion(minion, uuid, owner) {
 
 $(document).on('click', '.minion-message-item', async function (event) {
     const item = $(this);
-    const tokenUuid = `${game.scenes.current.uuid}.Token.${item.data().tokenId}`;
-    const token = await fromUuid(tokenUuid);
+    const token = await fromUuid(item.data().tokenId);
     if (token) {
         game.canvas.pan({ x: token.center.x, y: token.center.y })
         token.object.control({ releaseOthers: !event.shiftKey });
@@ -127,12 +126,11 @@ $(document).on('click', '.minion-message-item', async function (event) {
 Hooks.on("renderChatMessage", async (message, html) => {
     html.find('.dismiss-minion-item').click(async (event) => {
         const item = $(event.target);
-        const tokenId = item.parent().parent().data().tokenId;
+        const tokenUuid = item.parent().parent().data().tokenId;
         const ownerId = item.parent().parent().data().ownerId;
-        const tokenUuid = `${game.scenes.current.uuid}.Token.${tokenId}`;
         const token = await fromUuid(tokenUuid);
         if (token) {
-            window?.warpgate?.dismiss(tokenId);
+            window?.warpgate?.dismiss(token.id);
             item.parent().parent().remove();
 
             if (ownerId) {
@@ -146,9 +144,8 @@ Hooks.on("renderChatMessage", async (message, html) => {
     });
     html.find('.sustain-minion-item').click(async (event) => {
         const item = $(event.target);
-        const tokenId = item.parent().parent().data().tokenId;
+        const tokenUuid = item.parent().parent().data().tokenId;
         const ownerId = item.parent().parent().data().ownerId;
-        const tokenUuid = `${game.scenes.current.uuid}.Token.${tokenId}`;
         const token = await fromUuid(tokenUuid);
         if (token) {
             item.parent().parent().append(' was sustained');
@@ -168,8 +165,7 @@ Hooks.on("renderChatMessage", async (message, html) => {
 
 $(document).on('mouseenter', '.minion-message-item', async function () {
     const item = $(this);
-    const tokenUuid = `${game.scenes.current.uuid}.Token.${item.data().tokenId}`;
-    const token = await fromUuid(tokenUuid);
+    const token = await fromUuid(item.data().tokenId);
     if (token) {
         token.object._onHoverIn({}, {});
     }
@@ -177,8 +173,7 @@ $(document).on('mouseenter', '.minion-message-item', async function () {
 
 $(document).on('mouseleave', '.minion-message-item', async function () {
     const item = $(this);
-    const tokenUuid = `${game.scenes.current.uuid}.Token.${item.data().tokenId}`;
-    const token = await fromUuid(tokenUuid);
+    const token = await fromUuid(item.data().tokenId);
     if (token) {
         token.object._onHoverOut({}, {});
     }
