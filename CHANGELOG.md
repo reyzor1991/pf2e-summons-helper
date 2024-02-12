@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.0.7
+- Move to dropbox
+
 ## Version 0.0.6
 - Fix sustained minions
 
