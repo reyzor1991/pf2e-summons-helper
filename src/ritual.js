@@ -67,7 +67,7 @@ async function castRitual(actor, targets) {
 };
 
 Hooks.once("init", () => {
-    game.pf2esummonshelper = mergeObject(game.pf2esummonshelper ?? {}, {
+    game.pf2esummonshelper = foundry.utils.mergeObject(game.pf2esummonshelper ?? {}, {
         "castRitual": castRitual,
     });
 });
