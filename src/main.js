@@ -84,7 +84,7 @@ function createSustainMessage(combatant, minions) {
                 <span class="minion-li">
                     <span class="minion-li-text">${m.tokenName}</span>
                 </span> &nbsp; &nbsp;
-                <div>
+                <div class="btns">
                     <a class="dismiss-minion-item" title="Dismiss"><i class="fas fa-user-slash"></i>Dismiss</a>
                     <a class="sustain-minion-item" title="Dismiss"><i class="fas fa-user"></i>Sustain</a>
                 </div>
@@ -131,7 +131,11 @@ Hooks.on("renderChatMessage", async (message, html) => {
         const token = await fromUuid(tokenUuid);
         if (token) {
             window?.warpgate?.dismiss(token.id);
-            item.parent().parent().remove();
+            if (!window?.warpgate && token.flags['portal-lib']) {
+                await token.delete()
+            }
+            item.closest('li').append(' was dismissed');
+            item.closest('li').find('.btns').remove();
 
             if (ownerId) {
                 const owner = await fromUuid(ownerId);
@@ -139,7 +143,7 @@ Hooks.on("renderChatMessage", async (message, html) => {
                     await owner.itemTypes.action.find(a=>a.slug==='dismiss')?.toMessage()
                 }
             }
-            await updateMessage(message.id, html[0].outerHTML)
+            await updateMessage(message.id, html.find('.minion-message')[0].outerHTML)
         }
     });
     html.find('.sustain-minion-item').click(async (event) => {
@@ -148,9 +152,8 @@ Hooks.on("renderChatMessage", async (message, html) => {
         const ownerId = item.parent().parent().data().ownerId;
         const token = await fromUuid(tokenUuid);
         if (token) {
-            item.parent().parent().append(' was sustained');
-            item.parent().parent().find('.dismiss-minion-item').remove();
-            item.parent().parent().find('.sustain-minion-item').remove();
+            item.closest('li').append(' was sustained');
+            item.closest('li').find('.btns').remove();
 
             if (ownerId) {
                 const owner = await fromUuid(ownerId);
@@ -158,7 +161,8 @@ Hooks.on("renderChatMessage", async (message, html) => {
                     await owner.itemTypes.action.find(a=>a.slug==='sustain-a-spell')?.toMessage()
                 }
             }
-            await updateMessage(message.id, html[0].outerHTML)
+
+            await updateMessage(message.id, html.find('.minion-message')[0].outerHTML)
         }
     });
 });

@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.1.1
+- Support of summon spells 
+
 ## Version 0.1.0
 - V12 compatibility 
 

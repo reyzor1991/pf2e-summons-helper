@@ -1,0 +1,41 @@
+<form autocomplete="off" onsubmit="event.preventDefault();">
+    <div class="flexrow main">
+        <div class="filters">
+            Name
+            <input type="text" id="filter-name" value=""/>
+            <br/>
+            <br/>
+            Select traits
+            <multi-select id="traits">
+                {{ selectOptions traits selected=selectedTraits localize=true valueAttr="key" labelAttr="label"}}
+            </multi-select>
+            <br/>
+            <br/>
+            Level
+            <input type="text" id="level" value="{{lvl}}"/>
+            <br/>
+            Max Level
+            <input type="text" id="max-level" value="{{maxLvl}}"/>
+        </div>
+        <div class="data">
+            {{#each creatures}}
+                <div class="c-row" data-uuid="{{this.uuid}}">
+                    <div class="lvl">
+                        <label>{{this.system.details.level.value}}</label>
+                    </div>
+                    <div class="name">
+                        <label>{{this.name}}</label>
+                    </div>
+                    <div class="img">
+                        <img src="{{this.img}}">
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+    <div class="form-group buttons">
+        <button type="submit" name="submit">
+            <i class="far fa-save"></i> Summon
+        </button>
+    </div>
+</form>

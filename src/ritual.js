@@ -60,10 +60,11 @@ const ritualList = [
 
 // ritual: {gold, primaryChecks, secondaryChecks}
 // validation -> mainCaster, secondaryCasters, ritual
-async function castRitual(actor, targets) {
-    console.log(actor);
+async function castRitual(token, targets) {
+    console.log(token);
     console.log(targets);
     ui.notifications.info("Feature under dev yet");
+
 };
 
 Hooks.once("init", () => {
