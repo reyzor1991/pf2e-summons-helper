@@ -126,16 +126,17 @@ class BestiaryForm extends FormApplication {
         let app = $(_event.target).closest('.pf2e-summons-helper')
         app.hide();
         let uuid = $(_event.target).find('.selected').data('uuid')
-        const importedToken = (await fromUuid(uuid));
+        const importedActor = (await fromUuid(uuid));
 
         let a = new Portal()
-            .addCreature(importedToken, {count: 1})
+            .addCreature(importedActor, {count: 1, updateData: {actor: {ownership: {[game.userId]: 3}}}})
             .spawn();
 
         let tokDoc = await a;
         if (!tokDoc) {
             return
         }
+        await tokDoc[0].update({ delta: importedActor.toObject() });
         app.show();
 
         Hooks.callAll('fs-postSummon', {
@@ -177,10 +178,10 @@ const TRAITS_SUMMON = {
     'summon-fiend': ['fiend'],
     'summon-giant': ['giant'],
     'summon-celestial': ['celestial'],
-    'summon-anarch': ['celestial', 'monitor','fiend'],
-    'summon-axiom': ['celestial', 'monitor','fiend'],
-    'summon-lesser-servitor': ['celestial', 'monitor','fiend'],
-    'summon-plant-or-fungus': ['fey','fungus'],
+    'summon-anarch': ['celestial', 'monitor', 'fiend'],
+    'summon-axiom': ['celestial', 'monitor', 'fiend'],
+    'summon-lesser-servitor': ['celestial', 'monitor', 'fiend'],
+    'summon-plant-or-fungus': ['fey', 'fungus'],
     'summon-animal': ['animal'],
 }
 

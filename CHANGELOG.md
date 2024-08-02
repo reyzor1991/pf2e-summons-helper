@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.1.3
+- Add PC as owner of summoned creature
+
 ## Version 0.1.2
 - Add Summon Lesser Servitor
 

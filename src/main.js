@@ -10,6 +10,7 @@ const setupSocket = () => {
   if (globalThis.socketlib) {
       socketlibSocket = globalThis.socketlib.registerModule(moduleName);
       socketlibSocket.register("updateMessage", updateMessage);
+      socketlibSocket.register("deleteToken", deleteToken);
   }
   return !!globalThis.socketlib
 }
@@ -17,6 +18,15 @@ const setupSocket = () => {
 Hooks.once('setup', function () {
     if (!setupSocket()) console.error('Error: Unable to set up socket lib for PF2e Summons Helper')
 });
+
+async function deleteToken(scene, id) {
+    if (!game.user.isGM) {
+        socketlibSocket._sendRequest("deleteToken", [scene, id], 0)
+        return
+    }
+
+    await game.scenes.get(scene)?.tokens?.get(id)?.delete()
+}
 
 async function updateMessage(id, content) {
     if (!game.user.isGM) {
@@ -130,9 +140,10 @@ Hooks.on("renderChatMessage", async (message, html) => {
         const ownerId = item.parent().parent().data().ownerId;
         const token = await fromUuid(tokenUuid);
         if (token) {
-            window?.warpgate?.dismiss(token.id);
             if (!window?.warpgate && token.flags['portal-lib']) {
-                await token.delete()
+                deleteToken(token.scene.id, token.id);
+            } else  {
+                window?.warpgate?.dismiss(token.id);
             }
             item.closest('li').append(' was dismissed');
             item.closest('li').find('.btns').remove();
