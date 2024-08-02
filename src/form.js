@@ -179,8 +179,9 @@ const TRAITS_SUMMON = {
     'summon-celestial': ['celestial'],
     'summon-anarch': ['celestial', 'monitor','fiend'],
     'summon-axiom': ['celestial', 'monitor','fiend'],
+    'summon-lesser-servitor': ['celestial', 'monitor','fiend'],
     'summon-plant-or-fungus': ['fey','fungus'],
-    'summon-animal': ['animal']
+    'summon-animal': ['animal'],
 }
 
 Hooks.on("createChatMessage", async (message, options, userId) => {

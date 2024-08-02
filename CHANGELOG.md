@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.1.2
+- Add Summon Lesser Servitor
+
 ## Version 0.1.1
 - Support of summon spells 
 
