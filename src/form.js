@@ -1,3 +1,5 @@
+const FOLDER_NAME = 'PF2e Summoned creatures';
+
 class BestiaryForm extends FormApplication {
 
     indexedData = []
@@ -123,6 +125,11 @@ class BestiaryForm extends FormApplication {
     }
 
     async _updateObject(_event, data) {
+        let folder = game.folders.find(f => f.name === FOLDER_NAME)?.id
+        if (!folder) {
+            folder = (await game.folders.documentClass.create({type: 'Actor', name: FOLDER_NAME}))?.id
+        }
+
         let app = $(_event.target).closest('.pf2e-summons-helper')
         app.hide();
         let uuid = $(_event.target).find('.selected').data('uuid')
@@ -137,6 +144,12 @@ class BestiaryForm extends FormApplication {
             return
         }
         await tokDoc[0].update({ delta: importedActor.toObject() });
+
+        if (!tokDoc[0].actor.folder) {
+            let mainActor = await  fromUuid(`Actor.${tokDoc[0].actor.id}`)
+            await mainActor.update({ folder })
+        }
+
         app.show();
 
         Hooks.callAll('fs-postSummon', {

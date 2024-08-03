@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.2.0
+- Move summoned creatures to folder
+
 ## Version 0.1.3
 - Add PC as owner of summoned creature
 
