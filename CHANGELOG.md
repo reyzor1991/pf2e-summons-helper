@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.3.1
+- Fix permissions
+
 ## Version 0.3.0
 - Filter by image and open sheet
 

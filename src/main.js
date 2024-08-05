@@ -7,12 +7,13 @@ Hooks.once("init", () => {
 });
 
 const setupSocket = () => {
-  if (globalThis.socketlib) {
-      socketlibSocket = globalThis.socketlib.registerModule(moduleName);
-      socketlibSocket.register("updateMessage", updateMessage);
-      socketlibSocket.register("deleteToken", deleteToken);
-  }
-  return !!globalThis.socketlib
+    if (globalThis.socketlib) {
+        socketlibSocket = globalThis.socketlib.registerModule(moduleName);
+        socketlibSocket.register("updateMessage", updateMessage);
+        socketlibSocket.register("deleteToken", deleteToken);
+        socketlibSocket.register("setFolder", setFolder);
+    }
+    return !!globalThis.socketlib
 }
 
 Hooks.once('setup', function () {
@@ -37,11 +38,21 @@ async function updateMessage(id, content) {
     await game.messages.get(id)?.update({content})
 }
 
+async function setFolder(id, folder) {
+    if (!game.user.isGM) {
+        socketlibSocket._sendRequest("setFolder", [id, folder], 0)
+        return
+    }
+
+    let mainActor = await fromUuid(`Actor.${id}`)
+    await mainActor.update({folder})
+}
+
 Hooks.on('fs-postSummon', async (data) => {
     const {sourceData} = data;
     if (sourceData) {
         const spell = sourceData?.flags?.item;
-        const actor = await fromUuid(`Actor.${sourceData?.summonerTokenDocument?.actorId}`) ;
+        const actor = await fromUuid(`Actor.${sourceData?.summonerTokenDocument?.actorId}`);
         if (spell && actor) {
             const creature = {token: data.tokenDoc.uuid, tokenName: data.tokenDoc.name, img: data.tokenDoc.texture.src};
             if (spell.system.duration?.value.includes("sustained") || spell.system.duration?.sustained) {
@@ -65,10 +76,10 @@ Hooks.on('deleteToken', async (token) => {
     if (master) {
         master = await fromUuid(master);
         const cursMins = master.getFlag(moduleName, "sustainedMinions") ?? [];
-        master.setFlag(moduleName, "sustainedMinions", cursMins.filter(a=>a.token!=token.uuid));
+        master.setFlag(moduleName, "sustainedMinions", cursMins.filter(a => a.token != token.uuid));
 
         const curMins = master.getFlag(moduleName, "minions") ?? [];
-        master.setFlag(moduleName, "minions", curMins.filter(a=>a.token!=token.uuid));
+        master.setFlag(moduleName, "minions", curMins.filter(a => a.token != token.uuid));
     }
 });
 
@@ -82,7 +93,7 @@ Hooks.on('pf2e.startTurn', async (combatant, encounter, user_id) => {
     if (minions.length > 0) {
         ChatMessage.create({
             type: CONST.CHAT_MESSAGE_TYPES.OOC,
-            content: `${combatant.name} has minions.<hr\> ${minions.map(a=>a.tokenName).join(', ')}`
+            content: `${combatant.name} has minions.<hr\> ${minions.map(a => a.tokenName).join(', ')}`
         });
     }
 });
@@ -110,7 +121,7 @@ function createSustainMessage(combatant, minions) {
 
     ChatMessage.create({
         user: game.user.id,
-        speaker: { alias: `${combatant.name} has sustained minions` },
+        speaker: {alias: `${combatant.name} has sustained minions`},
         content,
         type: CONST.CHAT_MESSAGE_TYPES.OTHER,
     });
@@ -128,8 +139,8 @@ $(document).on('click', '.minion-message-item', async function (event) {
     const item = $(this);
     const token = await fromUuid(item.data().tokenId);
     if (token) {
-        game.canvas.pan({ x: token.center.x, y: token.center.y })
-        token.object.control({ releaseOthers: !event.shiftKey });
+        game.canvas.pan({x: token.center.x, y: token.center.y})
+        token.object.control({releaseOthers: !event.shiftKey});
     }
 });
 
@@ -142,7 +153,7 @@ Hooks.on("renderChatMessage", async (message, html) => {
         if (token) {
             if (!window?.warpgate && token.flags['portal-lib']) {
                 deleteToken(token.scene.id, token.id);
-            } else  {
+            } else {
                 window?.warpgate?.dismiss(token.id);
             }
             item.closest('li').append(' was dismissed');
@@ -151,7 +162,7 @@ Hooks.on("renderChatMessage", async (message, html) => {
             if (ownerId) {
                 const owner = await fromUuid(ownerId);
                 if (owner) {
-                    await owner.itemTypes.action.find(a=>a.slug==='dismiss')?.toMessage()
+                    await owner.itemTypes.action.find(a => a.slug === 'dismiss')?.toMessage()
                 }
             }
             await updateMessage(message.id, html.find('.minion-message')[0].outerHTML)
@@ -169,7 +180,7 @@ Hooks.on("renderChatMessage", async (message, html) => {
             if (ownerId) {
                 const owner = await fromUuid(ownerId);
                 if (owner) {
-                    await owner.itemTypes.action.find(a=>a.slug==='sustain-a-spell')?.toMessage()
+                    await owner.itemTypes.action.find(a => a.slug === 'sustain-a-spell')?.toMessage()
                 }
             }
 

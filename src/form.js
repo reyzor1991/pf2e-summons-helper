@@ -47,7 +47,7 @@ class BestiaryForm extends FormApplication {
         });
 
         if (this.onlyImage) {
-            creatures = creatures.filter(c =>c.img !== 'systems/pf2e/icons/default-icons/npc.svg');
+            creatures = creatures.filter(c => c.img !== 'systems/pf2e/icons/default-icons/npc.svg');
         }
 
         creatures = creatures.sort((a, b) => {
@@ -162,11 +162,10 @@ class BestiaryForm extends FormApplication {
         if (!tokDoc) {
             return
         }
-        await tokDoc[0].update({ delta: importedActor.toObject() });
+        await tokDoc[0].update({delta: importedActor.toObject()});
 
         if (!tokDoc[0].actor.folder) {
-            let mainActor = await  fromUuid(`Actor.${tokDoc[0].actor.id}`)
-            await mainActor.update({ folder })
+            await setFolder(tokDoc[0].actor.id, folder)
         }
 
         app.show();
