@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.3.0
+- Filter by image and open sheet
+
 ## Version 0.2.0
 - Move summoned creatures to folder
 

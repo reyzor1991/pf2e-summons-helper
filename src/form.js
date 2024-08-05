@@ -12,6 +12,7 @@ class BestiaryForm extends FormApplication {
     spell;
     maxLvl = -1;
     lvl = -1;
+    onlyImage = false;
 
     constructor(options = {}) {
         super(options);
@@ -35,15 +36,6 @@ class BestiaryForm extends FormApplication {
             creatures = creatures.filter(c => this.selectedTraits.some(t => c.system.traits.value.includes(t)))
         }
 
-        creatures = creatures.sort((a, b) => {
-            if (a.system.details.level.value > b.system.details.level.value) return 1;
-            if (a.system.details.level.value < b.system.details.level.value) return -1;
-
-            if (a.name > b.name) return 1;
-            if (a.name < b.name) return -1;
-            return 0;
-        })
-
         creatures = creatures.map(c => {
             if (game?.pf2e?.system?.moduleArt?.map) {
                 let img = game?.pf2e?.system?.moduleArt?.map.get(c.uuid)?.img
@@ -52,6 +44,19 @@ class BestiaryForm extends FormApplication {
                 }
             }
             return c;
+        });
+
+        if (this.onlyImage) {
+            creatures = creatures.filter(c =>c.img !== 'systems/pf2e/icons/default-icons/npc.svg');
+        }
+
+        creatures = creatures.sort((a, b) => {
+            if (a.system.details.level.value > b.system.details.level.value) return 1;
+            if (a.system.details.level.value < b.system.details.level.value) return -1;
+
+            if (a.name > b.name) return 1;
+            if (a.name < b.name) return -1;
+            return 0;
         })
 
         return foundry.utils.mergeObject(super.getData(), {
@@ -65,7 +70,8 @@ class BestiaryForm extends FormApplication {
             creatures,
             selectedTraits: this.selectedTraits,
             maxLvl: this.maxLvl,
-            lvl: this.lvl
+            lvl: this.lvl,
+            onlyImage: this.onlyImage
         });
     }
 
@@ -102,6 +108,11 @@ class BestiaryForm extends FormApplication {
                 .show();
         });
 
+        $html.find('#filter-image').on('change', async function () {
+            parentForm.onlyImage = !parentForm.onlyImage;
+            await parentForm.render();
+        });
+
         $html.find('#traits').on('change', async function () {
             parentForm.selectedTraits = $(this).closest('form').find("#traits").val();
             await parentForm.render();
@@ -121,6 +132,14 @@ class BestiaryForm extends FormApplication {
             $(this).closest('form').find(".c-row").removeClass('selected')
 
             $(this).addClass('selected')
+        });
+
+        $($html).on("dblclick", ".c-row", async function (e) {
+            e.preventDefault();
+
+            let uuid = $(this).data().uuid;
+            let actor = (await fromUuid(uuid));
+            actor.sheet.render(true)
         });
     }
 

@@ -71,3 +71,10 @@
         }
     }
 }
+
+.tc {
+    text-align: center;
+}
+.cc {
+    align-content: center;
+}

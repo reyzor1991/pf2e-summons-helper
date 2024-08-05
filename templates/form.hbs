@@ -10,12 +10,21 @@
                 {{ selectOptions traits selected=selectedTraits localize=true valueAttr="key" labelAttr="label"}}
             </multi-select>
             <br/>
+            <div class="flexrow tc">
+                <div>
+                    <label>Level</label>
+                    <input type="text" id="level" value="{{lvl}}"/>
+                </div>
+                <div>
+                    <label>Max Level</label>
+                    <input type="text" id="max-level" value="{{maxLvl}}"/>
+                </div>
+            </div>
             <br/>
-            Level
-            <input type="text" id="level" value="{{lvl}}"/>
-            <br/>
-            Max Level
-            <input type="text" id="max-level" value="{{maxLvl}}"/>
+            <div class="flexrow tc">
+                <label class="cc">Only with images</label>
+                <input type="checkbox" id="filter-image"{{checked onlyImage}}/>
+            </div>
         </div>
         <div class="data">
             {{#each creatures}}
