@@ -22,7 +22,7 @@ class BestiaryForm extends FormApplication {
         this.lvl = options.maxLvl;
         this.selectedTraits = options.selectedTraits || [];
 
-        let packsNames = options.packsNames || ['pathfinder-monster-core', 'pathfinder-bestiary', 'pathfinder-bestiary-2', 'pathfinder-bestiary-3'];
+        let packsNames = options.packsNames || game.packs.contents.filter(p=>p.index.some(a=>a.type==='npc')).map(p=>p.metadata.name);
 
         this.indexedData = game.packs
             .filter(a => packsNames.includes(a.metadata.name))
@@ -31,6 +31,7 @@ class BestiaryForm extends FormApplication {
 
     async getData() {
         let creatures = (await Promise.all(this.indexedData)).map(c => c.contents).flat()
+            .filter(c=>c.type==='npc')
             .filter(a => a.system.details.level.value <= this.maxLvl && a.system.details.level.value >= this.lvl);
         if (this.selectedTraits.length > 0) {
             creatures = creatures.filter(c => this.selectedTraits.some(t => c.system.traits.value.includes(t)))
