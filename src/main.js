@@ -66,7 +66,7 @@ Hooks.on('fs-postSummon', async (data) => {
             }
             data.tokenDoc.setFlag(moduleName, "master", actor.uuid);
 
-            addEffectToMinion(data.tokenDoc.actor, minionOwner, data.sourceData.summonerTokenDocument)
+            await addEffectToMinion(data.tokenDoc.actor, minionOwner, data.sourceData.summonerTokenDocument)
         }
     }
 });
@@ -125,7 +125,7 @@ function createSustainMessage(combatant, minions) {
         content,
         type: CONST.CHAT_MESSAGE_TYPES.OTHER,
     });
-};
+}
 
 async function addEffectToMinion(minion, uuid, owner) {
     const aEffect = (await fromUuid(uuid)).toObject();
@@ -133,7 +133,7 @@ async function addEffectToMinion(minion, uuid, owner) {
     aEffect.name += owner.name;
 
     await minion.createEmbeddedDocuments("Item", [aEffect]);
-};
+}
 
 $(document).on('click', '.minion-message-item', async function (event) {
     const item = $(this);

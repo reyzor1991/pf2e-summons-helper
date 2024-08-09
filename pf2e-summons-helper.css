@@ -32,12 +32,27 @@
 
 #pf2e-summons-helper-creatures {
     .main {
-        height: 350px;
+        display: flex;
+        height: calc(100% - 40px);
+    }
+    form, .wrapper {
+        height: 100%;
     }
 
+    .filters {
+        flex: 3;
+    }
 
-    .main > div {
-        height: 350px;
+    .data {
+        flex: 5;
+    }
+
+    .form-group.buttons {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 98%;
+        margin: 6px;
     }
 
     .data {

@@ -154,6 +154,8 @@ class BestiaryForm extends FormApplication {
         let uuid = $(_event.target).find('.selected').data('uuid')
         const importedActor = (await fromUuid(uuid));
 
+        if (!importedActor) {return}
+
         let a = new Portal()
             .addCreature(importedActor, {count: 1, updateData: {actor: {ownership: {[game.userId]: 3}}}})
             .spawn();
@@ -184,7 +186,7 @@ class BestiaryForm extends FormApplication {
             tokenDoc: tokDoc[0]
         });
     }
-};
+}
 
 const MAX_LEVEL_SUMMON = {
     1: -1,
@@ -198,6 +200,7 @@ const MAX_LEVEL_SUMMON = {
     9: 13,
     10: 15,
 }
+
 const TRAITS_SUMMON = {
     'summon-undead': ['undead'],
     'summon-construct': ['construct'],
@@ -217,7 +220,7 @@ const TRAITS_SUMMON = {
 }
 
 Hooks.on("createChatMessage", async (message, options, userId) => {
-    if (game.userId != userId) {
+    if (game.userId !== userId) {
         return
     }
     if (!message.item?.isOfType('spell')) {
