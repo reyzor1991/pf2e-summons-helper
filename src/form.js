@@ -146,9 +146,6 @@ class BestiaryForm extends FormApplication {
 
     async _updateObject(_event, data) {
         let folder = game.folders.find(f => f.name === FOLDER_NAME)?.id
-        if (!folder) {
-            folder = (await game.folders.documentClass.create({type: 'Actor', name: FOLDER_NAME}))?.id
-        }
 
         let app = $(_event.target).closest('.pf2e-summons-helper')
         app.hide();
@@ -221,13 +218,19 @@ const TRAITS_SUMMON = {
 }
 
 Hooks.on("createChatMessage", async (message, options, userId) => {
-    if (game.userId !== userId) {
-        return
-    }
     if (!message.item?.isOfType('spell')) {
         return
     }
     if (!message.item.traits.has('summon')) {
+        return
+    }
+    if (game.user.isGM) {
+        let folder = game.folders.find(f => f.name === FOLDER_NAME)?.id
+        if (!folder) {
+            (await game.folders.documentClass.create({type: 'Actor', name: FOLDER_NAME}))?.id
+        }
+    }
+    if (game.userId !== userId) {
         return
     }
 

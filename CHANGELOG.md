@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.3.4
+- Fix creating folder
+
 ## Version 0.3.2-3
 - Fix css
 
