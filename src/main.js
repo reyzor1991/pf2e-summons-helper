@@ -76,10 +76,10 @@ Hooks.on('deleteToken', async (token) => {
     if (master) {
         master = await fromUuid(master);
         const cursMins = master.getFlag(moduleName, "sustainedMinions") ?? [];
-        master.setFlag(moduleName, "sustainedMinions", cursMins.filter(a => a.token != token.uuid));
+        await master.setFlag(moduleName, "sustainedMinions", cursMins.filter(a => a.token != token.uuid));
 
         const curMins = master.getFlag(moduleName, "minions") ?? [];
-        master.setFlag(moduleName, "minions", curMins.filter(a => a.token != token.uuid));
+        await master.setFlag(moduleName, "minions", curMins.filter(a => a.token != token.uuid));
     }
 });
 

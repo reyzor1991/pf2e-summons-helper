@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.4.0
+- Add Mirror's Reflection
+
 ## Version 0.3.4
 - Fix creating folder
 

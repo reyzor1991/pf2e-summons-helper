@@ -22,7 +22,7 @@ class BestiaryForm extends FormApplication {
         this.lvl = options.maxLvl;
         this.selectedTraits = options.selectedTraits || [];
 
-        let packsNames = options.packsNames || game.packs.contents.filter(p=>p.index.some(a=>a.type==='npc')).map(p=>p.metadata.name);
+        let packsNames = options.packsNames || game.packs.contents.filter(p => p.index.some(a => a.type === 'npc')).map(p => p.metadata.name);
 
         this.indexedData = game.packs
             .filter(a => packsNames.includes(a.metadata.name))
@@ -31,7 +31,7 @@ class BestiaryForm extends FormApplication {
 
     async getData() {
         let creatures = (await Promise.all(this.indexedData)).map(c => c.contents).flat()
-            .filter(c=>c.type==='npc')
+            .filter(c => c.type === 'npc')
             .filter(a => a.system.details.level.value <= this.maxLvl && a.system.details.level.value >= this.lvl);
         if (this.selectedTraits.length > 0) {
             creatures = creatures.filter(c => this.selectedTraits.some(t => c.system.traits.value.includes(t)))
@@ -152,7 +152,9 @@ class BestiaryForm extends FormApplication {
         let uuid = $(_event.target).find('.selected').data('uuid')
         const importedActor = (await fromUuid(uuid));
 
-        if (!importedActor) {return}
+        if (!importedActor) {
+            return
+        }
 
         let a = new Portal()
             .addCreature(importedActor, {count: 1, updateData: {actor: {ownership: {[game.userId]: 3}}}})
@@ -240,4 +242,21 @@ Hooks.on("createChatMessage", async (message, options, userId) => {
         maxLvl: MAX_LEVEL_SUMMON[message.item.level],
         selectedTraits: TRAITS_SUMMON[message.item.slug] || [],
     }).render(true)
+});
+
+//Mirror's Reflection
+Hooks.on("preCreateChatMessage", async (message) => {
+    if (message.item?.sourceId !== 'Compendium.pf2e.actionspf2e.Item.Mh4Vdg6gu8g8RAjh') {
+        return
+    }
+    ui.notifications.info("Place token into another unoccupied space within 15 feet that you can see");
+
+    let a = new Portal()
+        .addCreature(message.actor, {count: 1})
+        .spawn();
+
+    let tokDoc = await a;
+    if (!tokDoc) {return}
+
+    ui.notifications.info("Mirror's Reflection was summoned");
 });
