@@ -256,7 +256,46 @@ Hooks.on("preCreateChatMessage", async (message) => {
         .spawn();
 
     let tokDoc = await a;
-    if (!tokDoc) {return}
+    if (!tokDoc) {
+        return
+    }
 
     ui.notifications.info("Mirror's Reflection was summoned");
+});
+
+//Manifest Eidolon
+Hooks.on("preCreateChatMessage", async (message) => {
+    if (!message.actor) {
+        return
+    }
+    if (message.item?.sourceId !== 'Compendium.pf2e.actionspf2e.Item.n5vwBnLSlIXL9ptp') {
+        return
+    }
+    let eidolon = message.actor.flags['pf2e-eidolon-helper']?.eidolon
+        ? game.actors.get(message.actor.flags['pf2e-eidolon-helper']?.eidolon)
+        : undefined;
+    if (!eidolon) {
+        eidolon = await fromUuid(foundry.utils.getProperty(message.actor, `modules.pf2e-toolbelt.share.slaves`)?.[0]);
+    }
+    if (!eidolon) {
+        let party = message.actor.parties.first();
+        if (party) {
+            eidolon = party.members.find(a=>a.isOwner && a.class.slug === 'eidolon')
+        }
+    }
+
+    if (!eidolon) {
+        ui.notifications.info("Not found linked eidolon");
+        return
+    }
+    ui.notifications.info("Place token into open space adjacent to you");
+
+    let a = new Portal()
+        .addCreature(eidolon, {count: 1})
+        .spawn();
+
+    let tokDoc = await a;
+    if (!tokDoc) {return}
+
+    ui.notifications.info("Eidolon was summoned");
 });

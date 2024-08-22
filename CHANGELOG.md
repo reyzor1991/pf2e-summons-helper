@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.5.0
+- Manifest Eidolon
+
 ## Version 0.4.0
 - Add Mirror's Reflection
 
