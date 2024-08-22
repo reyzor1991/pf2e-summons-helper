@@ -38,11 +38,9 @@ class BestiaryForm extends FormApplication {
         }
 
         creatures = creatures.map(c => {
-            if (game?.pf2e?.system?.moduleArt?.map) {
-                let img = game?.pf2e?.system?.moduleArt?.map.get(c.uuid)?.img
-                if (img) {
-                    c.img = img;
-                }
+            const actorArt = game.compendiumArt.get(c.uuid)?.actor ?? game.pf2e.system.moduleArt.map.get(c.uuid)?.img;
+            if (actorArt) {
+                c.img = actorArt;
             }
             return c;
         });

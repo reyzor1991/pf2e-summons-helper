@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.5.1
+- Fix images
+
 ## Version 0.5.0
 - Manifest Eidolon
 
