@@ -93,7 +93,7 @@ class BestiaryForm extends FormApplication {
         super.activateListeners($html);
         const parentForm = this;
 
-        $($html).on("input propertychange paste change", "#filter-name", function (e) {
+        $($html).on("input propertychange paste change", "#filter-name", function (_e) {
             const value = $(this).val().toLowerCase();
             const $ul = $($html).find(".data");
             const $li = $ul.find(".c-row");
@@ -127,7 +127,7 @@ class BestiaryForm extends FormApplication {
             await parentForm.render();
         });
 
-        $($html).on("click", ".c-row", function (e) {
+        $($html).on("click", ".c-row", function (_e) {
             $(this).closest('form').find(".c-row").removeClass('selected')
 
             $(this).addClass('selected')
@@ -142,7 +142,7 @@ class BestiaryForm extends FormApplication {
         });
     }
 
-    async _updateObject(_event, data) {
+    async _updateObject(_event) {
         let folder = game.folders.find(f => f.name === FOLDER_NAME)?.id
 
         let app = $(_event.target).closest('.pf2e-summons-helper')
@@ -169,20 +169,6 @@ class BestiaryForm extends FormApplication {
         }
 
         app.show();
-
-        Hooks.callAll('fs-postSummon', {
-            sourceData: {
-                flags: {item: this.spell.toObject()},
-                summonerTokenDocument: {
-                    actorId: this.owner.actor.id,
-                    texture: {
-                        src: this.owner.texture.src
-                    },
-                    name: this.owner.name
-                },
-            },
-            tokenDoc: tokDoc[0]
-        });
     }
 }
 

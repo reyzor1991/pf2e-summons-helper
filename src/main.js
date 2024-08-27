@@ -76,14 +76,14 @@ Hooks.on('deleteToken', async (token) => {
     if (master) {
         master = await fromUuid(master);
         const cursMins = master.getFlag(moduleName, "sustainedMinions") ?? [];
-        await master.setFlag(moduleName, "sustainedMinions", cursMins.filter(a => a.token != token.uuid));
+        await master.setFlag(moduleName, "sustainedMinions", cursMins.filter(a => a.token !== token.uuid));
 
         const curMins = master.getFlag(moduleName, "minions") ?? [];
-        await master.setFlag(moduleName, "minions", curMins.filter(a => a.token != token.uuid));
+        await master.setFlag(moduleName, "minions", curMins.filter(a => a.token !== token.uuid));
     }
 });
 
-Hooks.on('pf2e.startTurn', async (combatant, encounter, user_id) => {
+Hooks.on('pf2e.startTurn', async (combatant) => {
     const sustainedMinions = combatant.actor.getFlag(moduleName, "sustainedMinions") ?? [];
     if (sustainedMinions.length > 0) {
         createSustainMessage(combatant, sustainedMinions)
@@ -101,7 +101,7 @@ Hooks.on('pf2e.startTurn', async (combatant, encounter, user_id) => {
 function createSustainMessage(combatant, minions) {
     const minionList = minions.map((m) => {
         return `
-            <li data-token-id="${m.token}" data-owner-id="${combatant.actor.uuid}" class="minion-message-item"><img src="${m.img}">
+            <li data-token-id="${m.token}" data-owner-id="${combatant.actor.uuid}" class="minion-message-item"><img src="${m.img}" alt="">
                 <span class="minion-li">
                     <span class="minion-li-text">${m.tokenName}</span>
                 </span> &nbsp; &nbsp;
