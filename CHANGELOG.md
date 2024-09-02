@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.5.2
+- Summon only common creatures
+- Add summoned trait to creatures
+
 ## Version 0.5.1
 - Fix images
 

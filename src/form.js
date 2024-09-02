@@ -4,7 +4,7 @@ class BestiaryForm extends FormApplication {
 
     indexedData = []
 
-    indexedFields = ["img", "system.traits.value", "system.details.level.value"];
+    indexedFields = ["img", "system.traits.value", "system.traits.rarity", "system.details.level.value"];
 
     selectedTraits = [];
 
@@ -32,6 +32,7 @@ class BestiaryForm extends FormApplication {
     async getData() {
         let creatures = (await Promise.all(this.indexedData)).map(c => c.contents).flat()
             .filter(c => c.type === 'npc')
+            .filter(c => c.system.traits.rarity === 'common')
             .filter(a => a.system.details.level.value <= this.maxLvl && a.system.details.level.value >= this.lvl);
         if (this.selectedTraits.length > 0) {
             creatures = creatures.filter(c => this.selectedTraits.some(t => c.system.traits.value.includes(t)))
@@ -155,7 +156,9 @@ class BestiaryForm extends FormApplication {
         }
 
         let a = new Portal()
-            .addCreature(importedActor, {count: 1, updateData: {actor: {ownership: {[game.userId]: 3}}}})
+            .addCreature(importedActor, {count: 1, updateData: {actor: {
+                ownership: {[game.userId]: 3},
+            }}})
             .spawn();
 
         let tokDoc = await a;
@@ -163,6 +166,8 @@ class BestiaryForm extends FormApplication {
             return
         }
         await tokDoc[0].update({delta: importedActor.toObject()});
+
+        await tokDoc[0].actor.update({"system.traits.value": [...tokDoc[0].actor.system.traits.value, "summoned"]})
 
         if (!tokDoc[0].actor.folder) {
             await setFolder(tokDoc[0].actor.id, folder)
@@ -264,7 +269,7 @@ Hooks.on("preCreateChatMessage", async (message) => {
     if (!eidolon) {
         let party = message.actor.parties.first();
         if (party) {
-            eidolon = party.members.find(a=>a.isOwner && a.class.slug === 'eidolon')
+            eidolon = party.members.find(a => a.isOwner && a.class.slug === 'eidolon')
         }
     }
 
@@ -279,7 +284,9 @@ Hooks.on("preCreateChatMessage", async (message) => {
         .spawn();
 
     let tokDoc = await a;
-    if (!tokDoc) {return}
+    if (!tokDoc) {
+        return
+    }
 
     ui.notifications.info("Eidolon was summoned");
 });
