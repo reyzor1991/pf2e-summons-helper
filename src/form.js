@@ -204,7 +204,7 @@ const TRAITS_SUMMON = {
     'summon-anarch': ['celestial', 'monitor', 'fiend'],
     'summon-axiom': ['celestial', 'monitor', 'fiend'],
     'summon-lesser-servitor': ['celestial', 'monitor', 'fiend'],
-    'summon-plant-or-fungus': ['fey', 'fungus'],
+    'summon-plant-or-fungus': ['plant', 'fungus'],
     'summon-animal': ['animal'],
 }
 
