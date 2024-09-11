@@ -11,7 +11,7 @@ const setupSocket = () => {
         socketlibSocket = globalThis.socketlib.registerModule(moduleName);
         socketlibSocket.register("updateMessage", updateMessage);
         socketlibSocket.register("deleteToken", deleteToken);
-        socketlibSocket.register("setFolder", setFolder);
+        socketlibSocket.register("addToFolder", addToFolder);
     }
     return !!globalThis.socketlib
 }
@@ -36,16 +36,6 @@ async function updateMessage(id, content) {
     }
 
     await game.messages.get(id)?.update({content})
-}
-
-async function setFolder(id, folder) {
-    if (!game.user.isGM) {
-        socketlibSocket._sendRequest("setFolder", [id, folder], 0)
-        return
-    }
-
-    let mainActor = await fromUuid(`Actor.${id}`)
-    await mainActor.update({folder})
 }
 
 Hooks.on('fs-postSummon', async (data) => {

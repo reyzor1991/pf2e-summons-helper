@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.5.4
+- Fix issue with permissions
+
 ## Version 0.5.3
 - Fix Summon trait
 

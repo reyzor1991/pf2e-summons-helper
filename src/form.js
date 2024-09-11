@@ -144,37 +144,46 @@ class BestiaryForm extends FormApplication {
     }
 
     async _updateObject(_event) {
-        let folder = game.folders.find(f => f.name === FOLDER_NAME)?.id
+        let folder = game.folders.find(f => f.name === FOLDER_NAME)
 
         let app = $(_event.target).closest('.pf2e-summons-helper')
         app.hide();
         let uuid = $(_event.target).find('.selected').data('uuid')
-        const importedActor = (await fromUuid(uuid));
-
-        if (!importedActor) {
-            return
+        let existed = folder.contents.find(a => a.sourceId === uuid)
+        if (!existed) {
+            existed = await socketlibSocket.executeAsGM("addToFolder", uuid);
+            existed = game.actors.get(existed._id)
         }
 
-        let a = new Portal()
-            .addCreature(importedActor, {count: 1, updateData: {actor: {
-                ownership: {[game.userId]: 3},
-            }}})
-            .spawn();
+        let portal = new Portal();
+        portal.addCreature(existed.uuid, {
+            count: 1,
+            updateData: {
+                actor: {
+                    ownership: {[game.userId]: 3},
+                }
+            }
+        });
 
-        let tokDoc = await a;
+        let tokDoc = await portal.spawn();
         if (!tokDoc) {
             return
         }
-        await tokDoc[0].update({delta: importedActor.toObject()});
+        await tokDoc[0].update({delta: existed.toObject()});
 
         await tokDoc[0].actor.update({"system.traits.value": [...tokDoc[0].actor.system.traits.value, "summoned"]})
 
-        if (!tokDoc[0].actor.folder) {
-            await setFolder(tokDoc[0].actor.id, folder)
-        }
-
         app.show();
     }
+}
+
+async function addToFolder(uuid) {
+    let npc = await fromUuid(uuid)
+    let obj = npc.toObject()
+    obj.folder = game.folders.find(f => f.name === FOLDER_NAME).id
+    obj.prototypeToken.randomImg = false
+
+    return ( await Actor.createDocuments([obj]))[0]
 }
 
 const MAX_LEVEL_SUMMON = {
