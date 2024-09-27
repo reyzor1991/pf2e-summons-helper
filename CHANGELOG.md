@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.6.0
+- Menu for selecting packs for summoning
+
 ## Version 0.5.5
 - Add missed dependency
 

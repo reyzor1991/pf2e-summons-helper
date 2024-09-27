@@ -3,6 +3,14 @@ const minionOwner = "Compendium.pf2e-summons-helper.summons-effect.Item.WZjCOL3v
 let socketlibSocket = undefined;
 
 Hooks.once("init", () => {
+    game.settings.register(moduleName, "selectedPacks", {
+        name: "Selected packs",
+        scope: "world",
+        default: [],
+        type: Array,
+        config: false,
+    });
+
     console.log(`${moduleName} was init`)
 });
 

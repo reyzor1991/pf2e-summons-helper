@@ -1,5 +1,70 @@
 const FOLDER_NAME = 'PF2e Summoned creatures';
 
+class SettingForm extends foundry.applications.api.HandlebarsApplicationMixin(
+    foundry.applications.api.ApplicationV2,
+) {
+    constructor() {
+        super({});
+    }
+
+    static DEFAULT_OPTIONS = {
+        tag: "form",
+        id: `${moduleName}-setting-form`,
+        classes: [moduleName],
+        window: {resizable: true},
+        position: {width: 500, height: 400},
+        actions: {},
+        form: {
+            handler: this.updateData,
+            submitOnChange: false,
+            closeOnSubmit: false
+        },
+    };
+
+    static PARTS = {
+        hbs: {
+            template: `modules/${moduleName}/templates/setting.hbs`
+        }
+    };
+
+    async _prepareContext(_options) {
+        let context = await super._prepareContext(_options);
+
+        let selectedPacks = game.settings.get(moduleName, "selectedPacks") || [];
+        selectedPacks = selectedPacks.reduce((obj, item) => {
+            obj[item.id] = item.isActive;
+            return obj;
+        }, {})
+
+        let packs = game.packs.contents
+            .filter(p => p.index.some(a => a.type === 'npc'))
+            .map(p => {
+                return {isActive: selectedPacks[p.metadata.id], id: p.metadata.id, name: p.metadata.label}
+            })
+
+
+        return {
+            ...context,
+            packs
+        };
+    }
+
+    static async updateData(event, form, formData) {
+        let keys = Object.keys(formData.object)
+
+        let data = keys.map(k => {
+            return {
+                id: k,
+                isActive: formData.object[k],
+            }
+        })
+
+        await game.settings.set(moduleName, "selectedPacks", data)
+
+        ui.notifications.info("Packs for summoning were updated");
+    }
+}
+
 class BestiaryForm extends FormApplication {
 
     indexedData = []
@@ -22,10 +87,8 @@ class BestiaryForm extends FormApplication {
         this.lvl = options.maxLvl;
         this.selectedTraits = options.selectedTraits || [];
 
-        let packsNames = options.packsNames || game.packs.contents.filter(p => p.index.some(a => a.type === 'npc')).map(p => p.metadata.name);
-
         this.indexedData = game.packs
-            .filter(a => packsNames.includes(a.metadata.name))
+            .filter(a => options.selectedPacks.includes(a.metadata.id))
             .map(p => p.getIndex({fields: this.indexedFields}))
     }
 
@@ -183,7 +246,7 @@ async function addToFolder(uuid) {
     obj.folder = game.folders.find(f => f.name === FOLDER_NAME).id
     obj.prototypeToken.randomImg = false
 
-    return ( await Actor.createDocuments([obj]))[0]
+    return (await Actor.createDocuments([obj]))[0]
 }
 
 const MAX_LEVEL_SUMMON = {
@@ -234,11 +297,19 @@ Hooks.on("createChatMessage", async (message, options, userId) => {
         return
     }
 
+    let selectedPacks = game.settings.get(moduleName, "selectedPacks")?.filter(i=>i.isActive)?.map(i=>i.id);
+    if (!selectedPacks || selectedPacks.length === 0) {
+        selectedPacks = game.packs.contents
+            .filter(p => p.index.some(a => a.type === 'npc'))
+            .map(p => p.metadata.id)
+    }
+
     new BestiaryForm({
         owner: message.token,
         spell: message.item,
         maxLvl: MAX_LEVEL_SUMMON[message.item.level],
         selectedTraits: TRAITS_SUMMON[message.item.slug] || [],
+        selectedPacks
     }).render(true)
 });
 
@@ -298,4 +369,19 @@ Hooks.on("preCreateChatMessage", async (message) => {
     }
 
     ui.notifications.info("Eidolon was summoned");
+});
+
+Hooks.on("renderSettings", async (_app, html) => {
+    let btn = $(`
+        <button data-action="pf2e-summons-helper">
+            <i class="fa-solid fa-spaghetti-monster-flying"></i> Summon Helper Menu
+        </button>
+    `);
+    btn.on('click', (_e) => {
+        new SettingForm().render(true)
+    })
+
+    html
+        .find('#settings-documentation')
+        .append(btn)
 });
