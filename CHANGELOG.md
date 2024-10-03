@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.6.1
+- Fix sustaining
+
 ## Version 0.6.0
 - Menu for selecting packs for summoning
 

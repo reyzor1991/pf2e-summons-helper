@@ -233,8 +233,22 @@ class BestiaryForm extends FormApplication {
             return
         }
         await tokDoc[0].update({delta: existed.toObject()});
-
         await tokDoc[0].actor.update({"system.traits.value": [...tokDoc[0].actor.system.traits.value, "summoned"]})
+
+        const creature = {token: tokDoc[0].uuid, tokenName: tokDoc[0].name, img: tokDoc[0].texture.src};
+
+        if (this.spell.system.duration?.value.includes("sustained") || this.spell.system.duration?.sustained) {
+            const sustainedMinions = this.owner.actor.getFlag(moduleName, "sustainedMinions") ?? [];
+            sustainedMinions.push(creature);
+            await this.owner.actor.setFlag(moduleName, "sustainedMinions", sustainedMinions);
+        } else {
+            const minions = this.owner.actor.getFlag(moduleName, "minions") ?? [];
+            minions.push(creature);
+            await this.owner.actor.setFlag(moduleName, "minions", minions);
+        }
+        await tokDoc[0].setFlag(moduleName, "master", this.owner.actor.uuid);
+
+        await addEffectToMinion(tokDoc[0].actor, minionOwner, this.owner)
 
         app.show();
     }
@@ -297,7 +311,7 @@ Hooks.on("createChatMessage", async (message, options, userId) => {
         return
     }
 
-    let selectedPacks = game.settings.get(moduleName, "selectedPacks")?.filter(i=>i.isActive)?.map(i=>i.id);
+    let selectedPacks = game.settings.get(moduleName, "selectedPacks")?.filter(i => i.isActive)?.map(i => i.id);
     if (!selectedPacks || selectedPacks.length === 0) {
         selectedPacks = game.packs.contents
             .filter(p => p.index.some(a => a.type === 'npc'))
