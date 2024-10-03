@@ -149,8 +149,8 @@ Hooks.on("renderChatMessage", async (message, html) => {
         const ownerId = item.parent().parent().data().ownerId;
         const token = await fromUuid(tokenUuid);
         if (token) {
-            if (!window?.warpgate && token.flags['portal-lib']) {
-                deleteToken(token.scene.id, token.id);
+            if (!window?.warpgate && token.flags[moduleName]) {
+                await deleteToken(token.scene.id, token.id);
             } else {
                 window?.warpgate?.dismiss(token.id);
             }
