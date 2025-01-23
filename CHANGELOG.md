@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.6.2
+- Phantasmal Minion
+- Optimizations
+
 ## Version 0.6.1
 - Fix sustaining
 

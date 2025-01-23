@@ -207,48 +207,11 @@ class BestiaryForm extends FormApplication {
     }
 
     async _updateObject(_event) {
-        let folder = game.folders.find(f => f.name === FOLDER_NAME)
-
         let app = $(_event.target).closest('.pf2e-summons-helper')
         app.hide();
         let uuid = $(_event.target).find('.selected').data('uuid')
-        let existed = folder.contents.find(a => a.sourceId === uuid)
-        if (!existed) {
-            existed = await socketlibSocket.executeAsGM("addToFolder", uuid);
-            existed = game.actors.get(existed._id)
-        }
 
-        let portal = new Portal();
-        portal.addCreature(existed.uuid, {
-            count: 1,
-            updateData: {
-                actor: {
-                    ownership: {[game.userId]: 3},
-                }
-            }
-        });
-
-        let tokDoc = await portal.spawn();
-        if (!tokDoc) {
-            return
-        }
-        await tokDoc[0].update({delta: existed.toObject()});
-        await tokDoc[0].actor.update({"system.traits.value": [...tokDoc[0].actor.system.traits.value, "summoned"]})
-
-        const creature = {token: tokDoc[0].uuid, tokenName: tokDoc[0].name, img: tokDoc[0].texture.src};
-
-        if (this.spell.system.duration?.value.includes("sustained") || this.spell.system.duration?.sustained) {
-            const sustainedMinions = this.owner.actor.getFlag(moduleName, "sustainedMinions") ?? [];
-            sustainedMinions.push(creature);
-            await this.owner.actor.setFlag(moduleName, "sustainedMinions", sustainedMinions);
-        } else {
-            const minions = this.owner.actor.getFlag(moduleName, "minions") ?? [];
-            minions.push(creature);
-            await this.owner.actor.setFlag(moduleName, "minions", minions);
-        }
-        await tokDoc[0].setFlag(moduleName, "master", this.owner.actor.uuid);
-
-        await addEffectToMinion(tokDoc[0].actor, minionOwner, this.owner)
+        await spawnMinion(uuid, this.spell, this.owner)
 
         app.show();
     }
@@ -294,18 +257,23 @@ const TRAITS_SUMMON = {
     'summon-animal': ['animal'],
 }
 
+const SKIP = [
+    "Compendium.pf2e.spells-srd.Item.xqmHD8JIjak15lRk"
+]
+
 Hooks.on("createChatMessage", async (message, options, userId) => {
-    if (!message.item?.isOfType('spell')) {
+    if (!message.item?.isOfType('spell') || !message.item.traits.has('summon')) {
         return
     }
-    if (!message.item.traits.has('summon')) {
-        return
-    }
+    let folder = game.folders.find(f => f.name === FOLDER_NAME)?.id
     if (game.user.isGM) {
-        let folder = game.folders.find(f => f.name === FOLDER_NAME)?.id
         if (!folder) {
             (await game.folders.documentClass.create({type: 'Actor', name: FOLDER_NAME}))?.id
         }
+    }
+    if (SKIP.includes(message.item.sourceId)) {
+        await phantasmalMinion(message)
+        return
     }
     if (game.userId !== userId) {
         return
@@ -329,28 +297,32 @@ Hooks.on("createChatMessage", async (message, options, userId) => {
 
 //Mirror's Reflection
 Hooks.on("preCreateChatMessage", async (message) => {
+    if (!message.actor) {
+        return
+    }
+    await mirrorsReflection(message);
+    await manifestEidolon(message);
+});
+
+async function mirrorsReflection(message) {
     if (message.item?.sourceId !== 'Compendium.pf2e.actionspf2e.Item.Mh4Vdg6gu8g8RAjh') {
         return
     }
     ui.notifications.info("Place token into another unoccupied space within 15 feet that you can see");
 
-    let a = new Portal()
+    let tokDoc = await (new Portal()
         .addCreature(message.actor, {count: 1})
-        .spawn();
+        .range(15)
+        .spawn());
 
-    let tokDoc = await a;
     if (!tokDoc) {
         return
     }
 
     ui.notifications.info("Mirror's Reflection was summoned");
-});
+}
 
-//Manifest Eidolon
-Hooks.on("preCreateChatMessage", async (message) => {
-    if (!message.actor) {
-        return
-    }
+async function manifestEidolon(message) {
     if (message.item?.sourceId !== 'Compendium.pf2e.actionspf2e.Item.n5vwBnLSlIXL9ptp') {
         return
     }
@@ -383,7 +355,56 @@ Hooks.on("preCreateChatMessage", async (message) => {
     }
 
     ui.notifications.info("Eidolon was summoned");
-});
+}
+
+async function phantasmalMinion(message) {
+    if (message?.item?.sourceId !== "Compendium.pf2e.spells-srd.Item.xqmHD8JIjak15lRk") {
+        return;
+    }
+    let uuid = "Compendium.pf2e.pathfinder-bestiary.Actor.j7NNPfZwD19BwSEZ";
+    await spawnMinion(uuid, message.item, message.token)
+}
+
+async function spawnMinion(actorUuid, spell, owner) {
+    let folder = game.folders.find(f => f.name === FOLDER_NAME)
+    let existed = folder.contents.find(a => a.sourceId === actorUuid)
+    if (!existed) {
+        existed = await socketlibSocket.executeAsGM("addToFolder", actorUuid);
+        existed = game.actors.get(existed._id)
+    }
+
+    let portal = new Portal();
+    portal.addCreature(existed.uuid, {
+        count: 1,
+        updateData: {
+            actor: {
+                ownership: {[game.userId]: 3},
+            }
+        }
+    });
+
+    let tokDoc = await portal.spawn();
+    if (!tokDoc) {
+        return
+    }
+    await tokDoc[0].update({delta: existed.toObject()});
+    await tokDoc[0].actor.update({"system.traits.value": [...tokDoc[0].actor.system.traits.value, "summoned"]})
+
+    const creature = {token: tokDoc[0].uuid, tokenName: tokDoc[0].name, img: tokDoc[0].texture.src};
+
+    if (spell.system.duration?.value.includes("sustained") || spell.system.duration?.sustained) {
+        const sustainedMinions = owner.actor.getFlag(moduleName, "sustainedMinions") ?? [];
+        sustainedMinions.push(creature);
+        await owner.actor.setFlag(moduleName, "sustainedMinions", sustainedMinions);
+    } else {
+        const minions = owner.actor.getFlag(moduleName, "minions") ?? [];
+        minions.push(creature);
+        await owner.actor.setFlag(moduleName, "minions", minions);
+    }
+    await tokDoc[0].setFlag(moduleName, "master", owner.actor.uuid);
+
+    await addEffectToMinion(tokDoc[0].actor, minionOwner, owner)
+}
 
 Hooks.on("renderSettings", async (_app, html) => {
     let btn = $(`
