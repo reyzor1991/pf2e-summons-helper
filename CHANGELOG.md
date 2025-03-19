@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.7.0
+- Handle basic logic of Create thrall spell
+
 ## Version 0.6.2
 - Phantasmal Minion
 - Optimizations

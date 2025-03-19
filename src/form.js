@@ -258,8 +258,27 @@ const TRAITS_SUMMON = {
 }
 
 const SKIP = [
-    "Compendium.pf2e.spells-srd.Item.xqmHD8JIjak15lRk"
+    "Compendium.pf2e.spells-srd.Item.xqmHD8JIjak15lRk",
+    "Compendium.pf2e-playtest-data.impossible-playtest-spells.Item.77lglowVpcnRRh3g"//thrall
 ]
+
+Hooks.on("createChatMessage", async (message, options, userId) => {
+    if (!message.item?.isOfType('spell') || !message.item.traits.has('thrall')) {
+        return
+    }
+
+    let folder = game.folders.find(f => f.name === FOLDER_NAME)?.id
+    if (game.user.isGM) {
+        if (!folder) {
+            (await game.folders.documentClass.create({type: 'Actor', name: FOLDER_NAME}))?.id
+        }
+    }
+    if (game.userId !== userId) {
+        return
+    }
+
+    await createThrall(message)
+});
 
 Hooks.on("createChatMessage", async (message, options, userId) => {
     if (!message.item?.isOfType('spell') || !message.item.traits.has('summon')) {
@@ -271,11 +290,11 @@ Hooks.on("createChatMessage", async (message, options, userId) => {
             (await game.folders.documentClass.create({type: 'Actor', name: FOLDER_NAME}))?.id
         }
     }
-    if (SKIP.includes(message.item.sourceId)) {
-        await phantasmalMinion(message)
+    if (game.userId !== userId) {
         return
     }
-    if (game.userId !== userId) {
+    if (SKIP.includes(message.item.sourceId)) {
+        await phantasmalMinion(message)
         return
     }
 
@@ -365,6 +384,14 @@ async function phantasmalMinion(message) {
     await spawnMinion(uuid, message.item, message.token)
 }
 
+async function createThrall(message) {
+    if (message?.item?.sourceId !== "Compendium.pf2e-playtest-data.impossible-playtest-spells.Item.77lglowVpcnRRh3g") {
+        return;
+    }
+    let uuid = "Compendium.pf2e-playtest-data.impossible-playtest-thralls.Actor.ISmLeI8zNc6YWysQ";
+    await spawnMinion(uuid, message.item, message.token)
+}
+
 async function spawnMinion(actorUuid, spell, owner) {
     let folder = game.folders.find(f => f.name === FOLDER_NAME)
     let existed = folder.contents.find(a => a.sourceId === actorUuid)
@@ -390,20 +417,23 @@ async function spawnMinion(actorUuid, spell, owner) {
     await tokDoc[0].update({delta: existed.toObject()});
     await tokDoc[0].actor.update({"system.traits.value": [...tokDoc[0].actor.system.traits.value, "summoned"]})
 
-    const creature = {token: tokDoc[0].uuid, tokenName: tokDoc[0].name, img: tokDoc[0].texture.src};
+    let dur = undefined
+    if (spell.system.duration) {
+        let newDur = foundry.utils.deepClone(unlimited)
+        newDur.sustained = spell.system.duration.sustained || false;
 
-    if (spell.system.duration?.value.includes("sustained") || spell.system.duration?.sustained) {
-        const sustainedMinions = owner.actor.getFlag(moduleName, "sustainedMinions") ?? [];
-        sustainedMinions.push(creature);
-        await owner.actor.setFlag(moduleName, "sustainedMinions", sustainedMinions);
-    } else {
-        const minions = owner.actor.getFlag(moduleName, "minions") ?? [];
-        minions.push(creature);
-        await owner.actor.setFlag(moduleName, "minions", minions);
+
+        const regex = /([0-9]{1,}) ([a-z]{1,})/g;
+        const array = [...spell.system.duration.value.matchAll(regex)];
+        if (array?.length === 1) {
+            newDur.unit = array[0][2].slice(-1) === 's' ? array[0][2] : array[0][2] + 's'
+            newDur.value = parseInt(array[0][1])
+
+            dur = newDur
+        }
     }
-    await tokDoc[0].setFlag(moduleName, "master", owner.actor.uuid);
 
-    await addEffectToMinion(tokDoc[0].actor, minionOwner, owner)
+    await addEffectToMinion(tokDoc[0].actor, minionOwner, owner, dur || foundry.utils.deepClone(unlimited));
 }
 
 Hooks.on("renderSettings", async (_app, html) => {

@@ -2,6 +2,8 @@ const moduleName = "pf2e-summons-helper";
 const minionOwner = "Compendium.pf2e-summons-helper.summons-effect.Item.WZjCOL3vxDHGYPLf";
 let socketlibSocket = undefined;
 
+const unlimited = {"expiry": "turn-end", "sustained": false, "unit": "unlimited", "value": -1}
+
 Hooks.once("init", () => {
     game.settings.register(moduleName, "selectedPacks", {
         name: "Selected packs",
@@ -46,48 +48,44 @@ async function updateMessage(id, content) {
     await game.messages.get(id)?.update({content})
 }
 
-Hooks.on('fs-postSummon', async (data) => {
-    const {sourceData} = data;
-    if (sourceData) {
-        const spell = sourceData?.flags?.item;
-        const actor = await fromUuid(`Actor.${sourceData?.summonerTokenDocument?.actorId}`);
-        if (spell && actor) {
-            const creature = {token: data.tokenDoc.uuid, tokenName: data.tokenDoc.name, img: data.tokenDoc.texture.src};
-            if (spell.system.duration?.value.includes("sustained") || spell.system.duration?.sustained) {
-                const sustainedMinions = actor.getFlag(moduleName, "sustainedMinions") ?? [];
-                sustainedMinions.push(creature);
-                actor.setFlag(moduleName, "sustainedMinions", sustainedMinions);
-            } else {
-                const minions = actor.getFlag(moduleName, "minions") ?? [];
-                minions.push(creature);
-                actor.setFlag(moduleName, "minions", minions);
-            }
-            data.tokenDoc.setFlag(moduleName, "master", actor.uuid);
-
-            await addEffectToMinion(data.tokenDoc.actor, minionOwner, data.sourceData.summonerTokenDocument)
-        }
+Hooks.on("preDeleteItem", (ef) => {
+    if (ef.sourceId !== minionOwner) {
+        return
     }
-});
-
-Hooks.on('deleteToken', async (token) => {
-    let master = token.getFlag(moduleName, "master");
-    if (master) {
-        master = await fromUuid(master);
-        const cursMins = master.getFlag(moduleName, "sustainedMinions") ?? [];
-        await master.setFlag(moduleName, "sustainedMinions", cursMins.filter(a => a.token !== token.uuid));
-
-        const curMins = master.getFlag(moduleName, "minions") ?? [];
-        await master.setFlag(moduleName, "minions", curMins.filter(a => a.token !== token.uuid));
+    let t = ef.actor?.getActiveTokens(true, true)[0]
+    if (t) {
+        deleteToken(t.scene.id, t.id)
     }
-});
+})
 
 Hooks.on('pf2e.startTurn', async (combatant) => {
-    const sustainedMinions = combatant.actor.getFlag(moduleName, "sustainedMinions") ?? [];
+    let allMinions = combatant.token.scene.tokens
+        .filter(t => t?.actor?.itemTypes?.effect?.find(e => e.sourceId === 'Compendium.pf2e-summons-helper.summons-effect.Item.WZjCOL3vxDHGYPLf' && e?.system?.context?.origin?.actor === combatant.actor.uuid))
+
+    let sustainedMinions = allMinions
+        .filter(t => t?.actor?.itemTypes?.effect?.find(e => e.sourceId === 'Compendium.pf2e-summons-helper.summons-effect.Item.WZjCOL3vxDHGYPLf' && e?.system?.context?.origin?.actor === combatant.actor.uuid && e.system.duration.sustained))
+        .map(tokDoc => {
+            return {
+                token: tokDoc.uuid,
+                tokenName: tokDoc.name,
+                img: tokDoc.texture.src
+            }
+        })
+
     if (sustainedMinions.length > 0) {
         createSustainMessage(combatant, sustainedMinions)
     }
 
-    const minions = combatant.actor.getFlag(moduleName, "minions") ?? [];
+    let minions = allMinions
+        .filter(t => t?.actor?.itemTypes?.effect?.find(e => e.sourceId === 'Compendium.pf2e-summons-helper.summons-effect.Item.WZjCOL3vxDHGYPLf' && e?.system?.context?.origin?.actor === combatant.actor.uuid && !e.system.duration.sustained))
+        .map(tokDoc => {
+            return {
+                token: tokDoc.uuid,
+                tokenName: tokDoc.name,
+                img: tokDoc.texture.src
+            }
+        })
+
     if (minions.length > 0) {
         ChatMessage.create({
             type: CONST.CHAT_MESSAGE_TYPES.OOC,
@@ -125,10 +123,17 @@ function createSustainMessage(combatant, minions) {
     });
 }
 
-async function addEffectToMinion(minion, uuid, owner) {
+async function addEffectToMinion(minion, uuid, owner, duration) {
     const aEffect = (await fromUuid(uuid)).toObject();
     aEffect.img = owner.texture.src;
     aEffect.name += owner.name;
+
+    aEffect.system.context = {
+        origin: {
+            actor: owner?.actor?.uuid,
+        }
+    }
+    aEffect.system.duration = duration;
 
     await minion.createEmbeddedDocuments("Item", [aEffect]);
 }
@@ -149,7 +154,7 @@ Hooks.on("renderChatMessage", async (message, html) => {
         const ownerId = item.parent().parent().data().ownerId;
         const token = await fromUuid(tokenUuid);
         if (token) {
-            if (!window?.warpgate && token.flags[moduleName]) {
+            if (!window?.warpgate) {
                 await deleteToken(token.scene.id, token.id);
             } else {
                 window?.warpgate?.dismiss(token.id);
