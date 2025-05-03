@@ -1,0 +1,30 @@
+{
+  "name": "old-world",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "local": "npm run clean && npm run build && npm run static && npm run build:packs",
+    "build": "node build.js",
+    "clean": "tsx ./build/clean.ts",
+    "static": "tsx ./build/static.ts",
+    "build:packs": "tsx ./build/build-packs.ts",
+    "build:extract": "tsx ./build/extract.ts"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "@foundryvtt/foundryvtt-cli": "^1.0.4",
+    "@types/jquery": "^3.5.32",
+    "esbuild": "^0.25.1",
+    "eslint": "^9.19.0",
+    "socket.io": "^4.8.1",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.22.0",
+    "webpack": "^5.97.1"
+  },
+  "dependencies": {
+    "esbuild": "^0.25.1"
+  },
+  "private": true
+}

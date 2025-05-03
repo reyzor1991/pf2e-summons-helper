@@ -2,7 +2,7 @@
   "id": "pf2e-summons-helper",
   "title": "PF2e Summons Helper",
   "description": "PF2e Summons Helper - notify players about sustain creatures.",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "authors": [
     {
       "name": "Reyzor",
@@ -12,7 +12,7 @@
   ],
   "languages": [],
   "esmodules": [
-    "pf2e-summons-helper.js"
+    "pf2e-summons-helper.mjs"
   ],
   "styles": [
     "pf2e-summons-helper.css"
@@ -36,7 +36,7 @@
     {
       "label": "Summons Effects",
       "name": "summons-effect",
-      "path": "packs/summons-effect.db",
+      "path": "packs/effects",
       "system": "pf2e",
       "private": false,
       "type": "Item",
@@ -45,7 +45,7 @@
     {
       "label": "Summons Macros",
       "name": "summons-macros",
-      "path": "packs/summons-macros.db",
+      "path": "packs/macros",
       "system": "pf2e",
       "private": false,
       "type": "Macro",
@@ -58,12 +58,12 @@
   ],
   "media": [],
   "compatibility": {
-    "minimum": "11",
-    "verified": "12.330"
+    "minimum": "13.341",
+    "verified": "13.342"
   },
   "url": "https://github.com/reyzor1991/pf2e-wiki/wiki/PF2e-Summons-Helper",
-  "manifest": "https://www.dropbox.com/scl/fi/7llzr0iqqfv7r0mnpfaoc/module.json?rlkey=crj4cmuz7twfu85tgmh3ysa08&dl=1",
-  "download": "https://www.dropbox.com/scl/fi/dzsizuvhxqu5hs4mlry82/pf2e-summons-helper.zip?rlkey=s9gn1u35f1vzwz8fmmblmk0ld&dl=1",
+  "manifest": "https://www.dropbox.com/scl/fi/kkto6whalp6mb015nd7vb/module.json?rlkey=w60c75iwr9wb8711thkvt17f4&st=u5tn67uj&dl=1",
+  "download": "https://www.dropbox.com/scl/fi/q71cwfpkja7dw4r8m7rp6/pf2e-summons-helper.zip?rlkey=04vgr3q3i34yli23q7x2byaup&st=gsw05ltn&dl=1",
   "changelog": "https://github.com/reyzor1991/pf2e-summons-helper/blob/master/CHANGELOG.md",
   "readme": "https://github.com/reyzor1991/pf2e-summons-helper/blob/master/README.md",
   "bugs": "https://github.com/reyzor1991/pf2e-summons-helper/issues",
@@ -74,8 +74,8 @@
         "type": "system",
         "manifest": "https://github.com/foundryvtt/pf2e/releases/latest/download/system.json",
         "compatibility": {
-          "minimum": "5.0.2",
-          "verified": "6.1.3"
+          "minimum": "7.0.0",
+          "verified": "7.0.0"
         }
       }
     ],

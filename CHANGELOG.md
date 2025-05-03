@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 1.0.0
+- Foundry v13
+
 ## Version 0.7.0
 - Handle basic logic of Create thrall spell
 
