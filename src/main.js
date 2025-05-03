@@ -106,8 +106,32 @@ class SettingForm extends foundry.applications.api.HandlebarsApplicationMixin(
         ui.notifications.info("Packs for summoning were updated");
     }
 }
+class BestiaryForm extends foundry.applications.api.HandlebarsApplicationMixin(
+    foundry.applications.api.ApplicationV2,
+) {
+    static DEFAULT_OPTIONS = {
+        tag: "form",
+        id: `${moduleName}-creatures`,
+        classes: [moduleName],
+        window: {resizable: true, title: "Creatures"},
+        position: {width: 500, height: 440},
+        actions: {},
+        form: {
+            handler: this.updateData,
+            submitOnChange: false,
+            closeOnSubmit: false
+        },
+    };
 
-class BestiaryForm extends FormApplication {
+    static PARTS = {
+        hbs: {
+            template: `modules/${moduleName}/templates/form.hbs`
+        },
+        footer: {
+            template: `modules/${moduleName}/templates/summon-btn.hbs`,
+            scrollable: [''],
+        },
+    };
 
     indexedData = []
 
@@ -134,7 +158,9 @@ class BestiaryForm extends FormApplication {
             .map(p => p.getIndex({fields: this.indexedFields}))
     }
 
-    async getData() {
+    async _prepareContext(_options) {
+        let context = await super._prepareContext(_options);
+
         let creatures = (await Promise.all(this.indexedData)).map(c => c.contents).flat()
             .filter(c => c.type === 'npc')
             .filter(c => c.system.traits.rarity === 'common')
@@ -164,7 +190,8 @@ class BestiaryForm extends FormApplication {
             return 0;
         })
 
-        return foundry.utils.mergeObject(super.getData(), {
+        return {
+            ...context,
             traits: Object.entries(CONFIG.PF2E.creatureTraits).sort((a, b) => {
                 if (a[0] > b[0]) return 1;
                 if (a[0] < b[0]) return -1;
@@ -177,27 +204,12 @@ class BestiaryForm extends FormApplication {
             maxLvl: this.maxLvl,
             lvl: this.lvl,
             onlyImage: this.onlyImage
-        });
+        };
     }
 
-    static get defaultOptions() {
-        return foundry.utils.mergeObject(super.defaultOptions, {
-            title: "Creatures",
-            id: `${moduleName}-creatures`,
-            classes: [moduleName],
-            template: `modules/${moduleName}/templates/form.hbs`,
-            width: 500,
-            height: 440,
-            closeOnSubmit: true,
-            submitOnChange: false,
-            resizable: true,
-            dragDrop: [],
-        });
-    }
-
-    activateListeners($html) {
-        super.activateListeners($html);
+    _attachPartListeners(partId, htmlElement, options) {
         const parentForm = this;
+        let $html = $(htmlElement)
 
         $($html).on("input propertychange paste change", "#filter-name", function (_e) {
             const value = $(this).val().toLowerCase();
@@ -248,14 +260,18 @@ class BestiaryForm extends FormApplication {
         });
     }
 
-    async _updateObject(_event) {
-        let app = $(_event.target).closest('.pf2e-summons-helper')
-        app.hide();
-        let uuid = $(_event.target).find('.selected').data('uuid')
-
+    static async updateData(_event, form, formData) {
+        let app = $(_event.currentTarget).closest('.pf2e-summons-helper')
+        let uuid = $(_event.currentTarget).find('.selected').data('uuid')
+        if (!uuid) {
+            app.show();
+            ui.notifications.info("Need to select minion");
+            return;
+        } else {
+            app.hide();
+        }
         await spawnMinion(uuid, this.spell, this.owner)
-
-        app.show();
+        this.close();
     }
 }
 
@@ -390,6 +406,9 @@ async function createThrall(message) {
 }
 
 async function spawnMinion(actorUuid, spell, owner) {
+    if (!actorUuid) {
+        return
+    }
     let folder = game.folders.find(f => f.name === FOLDER_NAME)
     let existed = folder.contents.find(a => a.sourceId === actorUuid)
     if (!existed) {
@@ -471,6 +490,9 @@ const setupSocket = () => {
 }
 
 async function addToFolder(uuid) {
+    if (!uuid) {
+        return;
+    }
     let npc = await fromUuid(uuid)
     let obj = npc.toObject()
     obj.folder = game.folders.find(f => f.name === FOLDER_NAME).id

@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 1.0.1
+- Migrate to v2 form
+
 ## Version 1.0.0
 - Foundry v13
 
