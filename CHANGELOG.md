@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 1.0.2
+- Summon Protector Tree
+
 ## Version 1.0.1
 - Migrate to v2 form
 

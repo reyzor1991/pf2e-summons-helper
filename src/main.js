@@ -106,6 +106,7 @@ class SettingForm extends foundry.applications.api.HandlebarsApplicationMixin(
         ui.notifications.info("Packs for summoning were updated");
     }
 }
+
 class BestiaryForm extends foundry.applications.api.HandlebarsApplicationMixin(
     foundry.applications.api.ApplicationV2,
 ) {
@@ -334,7 +335,49 @@ let preCreateChatMessage = async (message) => {
     }
     await mirrorsReflection(message);
     await manifestEidolon(message);
+    await protectorTree(message);
 };
+
+async function protectorTree(message) {
+    if (message.item?.sourceId !== 'Compendium.pf2e.spells-srd.Item.K9gI08enGtmih5X1') {
+        return
+    }
+
+    let spellLevel = message.item.level;
+    let portal = new Portal()
+        .addCreature(
+            `Compendium.pf2e-summons-helper.summons-actors.Actor.QqE1NLXmtnGBKv6H`,
+            {
+                updateData: {
+                    actor: {
+                        ownership: {[game.userId]: 3},
+                        system: {
+                            details: {
+                                alliance: message.actor.alliance
+                            },
+                            attributes: {
+                                hp: {
+                                    max: spellLevel * 10,
+                                    value: spellLevel * 10,
+                                }
+                            }
+                        }
+                    },
+                },
+                count: 1
+            }
+        )
+        .origin(message.token.object)
+        .range(30);
+
+    await portal.pick();
+
+    let tokDoc = await portal.spawn();
+    if (!tokDoc || !tokDoc[0]) {
+        return
+    }
+    tokDoc[0].actor.update({"system.attributes.hp.value": tokDoc[0].actor.system.attributes.hp.max});
+}
 
 async function mirrorsReflection(message) {
     if (message.item?.sourceId !== 'Compendium.pf2e.actionspf2e.Item.Mh4Vdg6gu8g8RAjh') {

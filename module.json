@@ -2,7 +2,7 @@
   "id": "pf2e-summons-helper",
   "title": "PF2e Summons Helper",
   "description": "PF2e Summons Helper - notify players about sustain creatures.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "authors": [
     {
       "name": "Reyzor",
@@ -28,7 +28,8 @@
       },
       "packs": [
         "summons-effect",
-        "summons-macros"
+        "summons-macros",
+        "summons-actors"
       ]
     }
   ],
@@ -49,6 +50,19 @@
       "system": "pf2e",
       "private": false,
       "type": "Macro",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "label": "Summons Actors",
+      "name": "summons-actors",
+      "path": "packs/actors",
+      "system": "pf2e",
+      "private": false,
+      "type": "Actor",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
