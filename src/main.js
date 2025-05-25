@@ -337,6 +337,7 @@ let preCreateChatMessage = async (message) => {
     await manifestEidolon(message);
     await protectorTree(message);
 };
+const tree_id = `Compendium.pf2e-summons-helper.summons-actors.Actor.QqE1NLXmtnGBKv6H`;
 
 async function protectorTree(message) {
     if (message.item?.sourceId !== 'Compendium.pf2e.spells-srd.Item.K9gI08enGtmih5X1') {
@@ -346,7 +347,7 @@ async function protectorTree(message) {
     let spellLevel = message.item.level;
     let portal = new Portal()
         .addCreature(
-            `Compendium.pf2e-summons-helper.summons-actors.Actor.QqE1NLXmtnGBKv6H`,
+            tree_id,
             {
                 updateData: {
                     actor: {

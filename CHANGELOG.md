@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 1.0.3
+- Fix source of Protector Tree
+
 ## Version 1.0.2
 - Summon Protector Tree
 
