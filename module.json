@@ -2,7 +2,7 @@
   "id": "pf2e-summons-helper",
   "title": "PF2e Summons Helper",
   "description": "PF2e Summons Helper - notify players about sustain creatures.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "authors": [
     {
       "name": "Reyzor",
@@ -73,7 +73,7 @@
   "media": [],
   "compatibility": {
     "minimum": "13.341",
-    "verified": "13.342"
+    "verified": "13.344"
   },
   "url": "https://github.com/reyzor1991/pf2e-wiki/wiki/PF2e-Summons-Helper",
   "manifest": "https://www.dropbox.com/scl/fi/kkto6whalp6mb015nd7vb/module.json?rlkey=w60c75iwr9wb8711thkvt17f4&st=u5tn67uj&dl=1",

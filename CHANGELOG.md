@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 1.0.4
+- Add Timber Sentinel - Protector Tree
+
 ## Version 1.0.3
 - Fix source of Protector Tree
 

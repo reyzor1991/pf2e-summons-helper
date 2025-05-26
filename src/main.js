@@ -336,15 +336,36 @@ let preCreateChatMessage = async (message) => {
     await mirrorsReflection(message);
     await manifestEidolon(message);
     await protectorTree(message);
+    await timberSentinel(message);
 };
 const tree_id = `Compendium.pf2e-summons-helper.summons-actors.Actor.QqE1NLXmtnGBKv6H`;
 
-async function protectorTree(message) {
-    if (message.item?.sourceId !== 'Compendium.pf2e.spells-srd.Item.K9gI08enGtmih5X1') {
+async function timberSentinel(message) {
+    if (message.item?.sourceId !== 'Compendium.pf2e.feats-srd.Item.aHlcMMNQ85VLK7QT') {
         return
     }
 
+    let trees = message.token.scene.tokens
+        .filter(t => t.actor?.flags?.[moduleName]?.owner === message.actor.uuid);
+
+    for (let tree of trees) {
+        await deleteToken(tree.scene.id, tree.id);
+    }
+
+    let spellLevel = Math.round(message.actor.level / 2);
+
+    createProtectorTree(message, spellLevel);
+}
+
+function protectorTree(message) {
+    if (message.item?.sourceId !== 'Compendium.pf2e.spells-srd.Item.K9gI08enGtmih5X1') {
+        return
+    }
     let spellLevel = message.item.level;
+    createProtectorTree(message, spellLevel);
+}
+
+async function createProtectorTree(message, spellLevel) {
     let portal = new Portal()
         .addCreature(
             tree_id,
@@ -352,6 +373,11 @@ async function protectorTree(message) {
                 updateData: {
                     actor: {
                         ownership: {[game.userId]: 3},
+                        flags: {
+                            [moduleName]: {
+                                owner: message.actor.uuid,
+                            }
+                        },
                         system: {
                             details: {
                                 alliance: message.actor.alliance
