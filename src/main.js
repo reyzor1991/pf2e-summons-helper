@@ -179,7 +179,7 @@ class BestiaryForm extends foundry.applications.api.HandlebarsApplicationMixin(
         });
 
         if (this.onlyImage) {
-            creatures = creatures.filter(c => c.img !== 'systems/pf2e/icons/default-icons/npc.svg');
+            creatures = creatures.filter(c => !c.img?.includes("systems/pf2e/icons/default-icons/npc.svg"));
         }
 
         creatures = creatures.sort((a, b) => {

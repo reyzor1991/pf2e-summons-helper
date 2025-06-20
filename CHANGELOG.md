@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 1.0.5
+- Fix filtering by image
+
 ## Version 1.0.4
 - Add Timber Sentinel - Protector Tree
 
