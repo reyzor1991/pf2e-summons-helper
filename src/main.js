@@ -162,21 +162,21 @@ class BestiaryForm extends foundry.applications.api.HandlebarsApplicationMixin(
     async _prepareContext(_options) {
         let context = await super._prepareContext(_options);
 
-        let creatures = (await Promise.all(this.indexedData)).map(c => c.contents).flat()
+        let indexedRow = (await Promise.all(this.indexedData)).map(c => c.contents).flat()
+            .map(c => {
+                const art = game.compendiumArt.get(c.uuid)?.actor ?? game.pf2e.system.moduleArt.map.get(c.uuid)?.img;
+                c.img = art ?? c.img;
+                return c;
+            });
+
+        let creatures = indexedRow
             .filter(c => c.type === 'npc')
             .filter(c => c.system.traits.rarity === 'common')
             .filter(a => a.system.details.level.value <= this.maxLvl && a.system.details.level.value >= this.lvl);
+
         if (this.selectedTraits.length > 0) {
             creatures = creatures.filter(c => this.selectedTraits.some(t => c.system.traits.value.includes(t)))
         }
-
-        creatures = creatures.map(c => {
-            const actorArt = game.compendiumArt.get(c.uuid)?.actor ?? game.pf2e.system.moduleArt.map.get(c.uuid)?.img;
-            if (actorArt) {
-                c.img = actorArt;
-            }
-            return c;
-        });
 
         if (this.onlyImage) {
             creatures = creatures.filter(c => !c.img?.includes("systems/pf2e/icons/default-icons/npc.svg"));
