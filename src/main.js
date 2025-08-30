@@ -372,7 +372,6 @@ async function createProtectorTree(message, spellLevel) {
             {
                 updateData: {
                     actor: {
-                        ownership: {[game.userId]: 3},
                         flags: {
                             [moduleName]: {
                                 owner: message.actor.uuid,
@@ -487,20 +486,14 @@ async function spawnMinion(actorUuid, spell, owner) {
     }
 
     let portal = new Portal();
-    portal.addCreature(existed.uuid, {
-        count: 1,
-        updateData: {
-            actor: {
-                ownership: {[game.userId]: 3},
-            }
-        }
-    });
+    portal.addCreature(existed.uuid);
 
     let tokDoc = await portal.spawn();
     if (!tokDoc) {
         return
     }
-    await tokDoc[0].update({delta: existed.toObject()});
+    await socketlibSocket.executeAsGM("addOwnership", tokDoc[0].actor.uuid, game.userId);
+    // await tokDoc[0].update({delta: existed.toObject()});
     await tokDoc[0].actor.update({"system.traits.value": [...tokDoc[0].actor.system.traits.value, "summoned"]})
 
     let dur = undefined
@@ -555,8 +548,14 @@ const setupSocket = () => {
         socketlibSocket.register("updateMessage", updateMessage);
         socketlibSocket.register("deleteToken", deleteToken);
         socketlibSocket.register("addToFolder", addToFolder);
+        socketlibSocket.register("addOwnership", addOwnership);
     }
     return !!globalThis.socketlib
+}
+
+async function addOwnership(actorUuid, userId) {
+    let actor = await fromUuid(actorUuid);
+    await actor.update({[`ownership.${userId}`]: 3})
 }
 
 async function addToFolder(uuid) {

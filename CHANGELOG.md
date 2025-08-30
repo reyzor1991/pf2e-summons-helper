@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 1.0.7
+- Add fix for handling ownership
+
 ## Version 1.0.6
 - Fix handling images
 
