@@ -467,18 +467,20 @@ async function phantasmalMinion(message) {
 }
 
 async function createThrall(message) {
-    if (message?.flags?.pf2e?.context?.type !== 'spell-cast') {
-        return;
-    }
-    if (message?.item?.sourceId === "Compendium.pf2e-playtest-data.impossible-playtest-spells.Item.77lglowVpcnRRh3g") {
-        let uuid = "Compendium.pf2e-playtest-data.impossible-playtest-thralls.Actor.ISmLeI8zNc6YWysQ";
-        await spawnMinion(uuid, message.item, message.token)
-    } else if (message?.item?.sourceId === "Compendium.pf2e-playtest-data.impossible-playtest-spells.Item.kFkhtDYsR9fE0pAr") {
-        let uuid = "Compendium.pf2e-playtest-data.impossible-playtest-thralls.Actor.SX5QACMD5SvH9oeZ";
-        await spawnMinion(uuid, message.item, message.token)
-    }else if (message?.item?.sourceId === "Compendium.pf2e-playtest-data.impossible-playtest-spells.Item.SK8vQklaSQGd5DXw") {
-        let uuid = "Compendium.pf2e-playtest-data.impossible-playtest-thralls.Actor.CN6TMEeEd0Wmvkct";
-        await spawnMinion(uuid, message.item, message.token)
+    if (
+        message?.flags?.pf2e?.context?.type === 'spell-cast'
+        || (message?.flags?.pf2e?.origin?.type === 'spell' && message?.flags?.pf2e?.context?.type === undefined)
+    ) {
+        if (message?.item?.sourceId === "Compendium.pf2e-playtest-data.impossible-playtest-spells.Item.77lglowVpcnRRh3g") {
+            let uuid = "Compendium.pf2e-playtest-data.impossible-playtest-thralls.Actor.ISmLeI8zNc6YWysQ";
+            await spawnMinion(uuid, message.item, message.token)
+        } else if (message?.item?.sourceId === "Compendium.pf2e-playtest-data.impossible-playtest-spells.Item.kFkhtDYsR9fE0pAr") {
+            let uuid = "Compendium.pf2e-playtest-data.impossible-playtest-thralls.Actor.SX5QACMD5SvH9oeZ";
+            await spawnMinion(uuid, message.item, message.token)
+        } else if (message?.item?.sourceId === "Compendium.pf2e-playtest-data.impossible-playtest-spells.Item.SK8vQklaSQGd5DXw") {
+            let uuid = "Compendium.pf2e-playtest-data.impossible-playtest-thralls.Actor.CN6TMEeEd0Wmvkct";
+            await spawnMinion(uuid, message.item, message.token)
+        }
     }
 }
 
