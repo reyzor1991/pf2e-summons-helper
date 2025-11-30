@@ -2,6 +2,7 @@
 
 ## Version 1.0.8
 - Add fix for handling create thrall
+- Add Living Graveyard
 
 ## Version 1.0.7
 - Add fix for handling ownership

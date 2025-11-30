@@ -476,6 +476,9 @@ async function createThrall(message) {
     } else if (message?.item?.sourceId === "Compendium.pf2e-playtest-data.impossible-playtest-spells.Item.kFkhtDYsR9fE0pAr") {
         let uuid = "Compendium.pf2e-playtest-data.impossible-playtest-thralls.Actor.SX5QACMD5SvH9oeZ";
         await spawnMinion(uuid, message.item, message.token)
+    }else if (message?.item?.sourceId === "Compendium.pf2e-playtest-data.impossible-playtest-spells.Item.SK8vQklaSQGd5DXw") {
+        let uuid = "Compendium.pf2e-playtest-data.impossible-playtest-thralls.Actor.CN6TMEeEd0Wmvkct";
+        await spawnMinion(uuid, message.item, message.token)
     }
 }
 
