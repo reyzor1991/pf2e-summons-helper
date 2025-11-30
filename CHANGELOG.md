@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 1.0.8
+- Add fix for handling create thrall
+
 ## Version 1.0.7
 - Add fix for handling ownership
 
