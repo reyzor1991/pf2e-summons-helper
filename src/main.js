@@ -367,32 +367,7 @@ function protectorTree(message) {
 
 async function createProtectorTree(message, spellLevel) {
     let portal = new Portal()
-        .addCreature(
-            tree_id,
-            {
-                updateData: {
-                    actor: {
-                        flags: {
-                            [moduleName]: {
-                                owner: message.actor.uuid,
-                            }
-                        },
-                        system: {
-                            details: {
-                                alliance: message.actor.alliance
-                            },
-                            attributes: {
-                                hp: {
-                                    max: spellLevel * 10,
-                                    value: spellLevel * 10,
-                                }
-                            }
-                        }
-                    },
-                },
-                count: 1
-            }
-        )
+        .addCreature(tree_id, {count: 1})
         .origin(message.token.object)
         .range(30);
 
@@ -402,7 +377,13 @@ async function createProtectorTree(message, spellLevel) {
     if (!tokDoc || !tokDoc[0]) {
         return
     }
-    tokDoc[0].actor.update({"system.attributes.hp.value": tokDoc[0].actor.system.attributes.hp.max});
+    await socketlibSocket.executeAsGM("addOwnership", tokDoc[0].actor.uuid, message?.user?.id || game.userId);
+    await tokDoc[0].actor.update({
+        [`flags.${moduleName}.owner`]: message.actor.uuid,
+        "system.details.alliance": message.actor.alliance,
+        "system.attributes.hp.max": spellLevel * 10
+    });
+    await tokDoc[0].actor.update({"system.attributes.hp.value": spellLevel * 10});
 }
 
 async function mirrorsReflection(message) {

@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 1.0.9
+- Add fix for handling ownership of Protector Tree
+
 ## Version 1.0.8
 - Add fix for handling create thrall
 - Add Living Graveyard
