@@ -623,7 +623,7 @@ Hooks.on('pf2e.startTurn', async (combatant) => {
 
     if (minions.length > 0) {
         ChatMessage.create({
-            type: CONST.CHAT_MESSAGE_TYPES.OOC,
+            style: CONST.CHAT_MESSAGE_STYLES.OOC,
             content: `${combatant.name} has minions.<hr\> ${minions.map(a => a.tokenName).join(', ')}`
         });
     }
@@ -654,7 +654,7 @@ function createSustainMessage(combatant, minions) {
         user: game.user.id,
         speaker: {alias: `${combatant.name} has sustained minions`},
         content,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+        style: CONST.CHAT_MESSAGE_STYLES.OTHER,
     });
 }
 
@@ -682,48 +682,48 @@ $(document).on('click', '.minion-message-item', async function (event) {
     }
 });
 
-Hooks.on("renderChatMessage", async (message, html) => {
-    html.find('.dismiss-minion-item').click(async (event) => {
-        const item = $(event.target);
-        const tokenUuid = item.parent().parent().data().tokenId;
-        const ownerId = item.parent().parent().data().ownerId;
-        const token = await fromUuid(tokenUuid);
-        if (token) {
-            if (!window?.warpgate) {
-                await deleteToken(token.scene.id, token.id);
-            } else {
-                window?.warpgate?.dismiss(token.id);
-            }
-            item.closest('li').append(' was dismissed');
-            item.closest('li').find('.btns').remove();
+async function handleMinionChatAction(event, message, html, action) {
+    const button = event.currentTarget;
+    const listItem = button.closest('.minion-message-item');
+    const tokenUuid = listItem?.dataset.tokenId;
+    const ownerId = listItem?.dataset.ownerId;
+    if (!tokenUuid) return;
 
-            if (ownerId) {
-                const owner = await fromUuid(ownerId);
-                if (owner) {
-                    await owner.itemTypes.action.find(a => a.slug === 'dismiss')?.toMessage()
-                }
-            }
-            await updateMessage(message.id, html.find('.minion-message')[0].outerHTML)
+    const token = await fromUuid(tokenUuid);
+    if (!token) return;
+
+    if (action === "dismiss") {
+        await deleteToken(token.scene.id, token.id);
+    }
+
+    listItem.append(` was ${action === "dismiss" ? "dismissed" : "sustained"}`);
+    listItem.querySelector('.btns')?.remove();
+
+    if (ownerId) {
+        const owner = await fromUuid(ownerId);
+        const actionSlug = action === "dismiss" ? "dismiss" : "sustain-a-spell";
+        if (owner) {
+            await owner.itemTypes.action.find(a => a.slug === actionSlug)?.toMessage();
         }
+    }
+
+    const messageContent = html.querySelector('.minion-message');
+    if (messageContent) {
+        await updateMessage(message.id, messageContent.outerHTML);
+    }
+}
+
+Hooks.on("renderChatMessageHTML", (message, html) => {
+    html.querySelectorAll('.dismiss-minion-item').forEach(button => {
+        button.addEventListener('click', async (event) => {
+            await handleMinionChatAction(event, message, html, "dismiss");
+        });
     });
-    html.find('.sustain-minion-item').click(async (event) => {
-        const item = $(event.target);
-        const tokenUuid = item.parent().parent().data().tokenId;
-        const ownerId = item.parent().parent().data().ownerId;
-        const token = await fromUuid(tokenUuid);
-        if (token) {
-            item.closest('li').append(' was sustained');
-            item.closest('li').find('.btns').remove();
 
-            if (ownerId) {
-                const owner = await fromUuid(ownerId);
-                if (owner) {
-                    await owner.itemTypes.action.find(a => a.slug === 'sustain-a-spell')?.toMessage()
-                }
-            }
-
-            await updateMessage(message.id, html.find('.minion-message')[0].outerHTML)
-        }
+    html.querySelectorAll('.sustain-minion-item').forEach(button => {
+        button.addEventListener('click', async (event) => {
+            await handleMinionChatAction(event, message, html, "sustain");
+        });
     });
 });
 

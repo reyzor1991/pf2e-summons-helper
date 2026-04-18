@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 1.1.0
+- v14
+
 ## Version 1.0.9
 - Add fix for handling ownership of Protector Tree
 

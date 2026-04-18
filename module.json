@@ -2,7 +2,7 @@
   "id": "pf2e-summons-helper",
   "title": "PF2e Summons Helper",
   "description": "PF2e Summons Helper - notify players about sustain creatures.",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "authors": [
     {
       "name": "Reyzor",
@@ -72,12 +72,13 @@
   ],
   "media": [],
   "compatibility": {
-    "minimum": "13.341",
-    "verified": "13.348"
+    "minimum": "14.360",
+    "verified": "14.360",
+    "maximum": "14.999"
   },
   "url": "https://github.com/reyzor1991/pf2e-wiki/wiki/PF2e-Summons-Helper",
-  "manifest": "https://www.dropbox.com/scl/fi/kkto6whalp6mb015nd7vb/module.json?rlkey=w60c75iwr9wb8711thkvt17f4&st=u5tn67uj&dl=1",
-  "download": "https://www.dropbox.com/scl/fi/q71cwfpkja7dw4r8m7rp6/pf2e-summons-helper.zip?rlkey=04vgr3q3i34yli23q7x2byaup&st=gsw05ltn&dl=1",
+  "manifest": "https://www.dropbox.com/scl/fi/8220gdl10ylepfnod7avv/module.json?rlkey=q92y2qwq8d9p3q0wmixvvonky&st=phwvbs04&dl=1",
+  "download": "https://www.dropbox.com/scl/fi/jtci9a1qe1skidw1xtq0v/pf2e-summons-helper.zip?rlkey=uo8ad37extdee53rpivtbioel&st=n75ie55z&dl=1",
   "changelog": "https://github.com/reyzor1991/pf2e-summons-helper/blob/master/CHANGELOG.md",
   "readme": "https://github.com/reyzor1991/pf2e-summons-helper/blob/master/README.md",
   "bugs": "https://github.com/reyzor1991/pf2e-summons-helper/issues",
@@ -88,8 +89,8 @@
         "type": "system",
         "manifest": "https://github.com/foundryvtt/pf2e/releases/latest/download/system.json",
         "compatibility": {
-          "minimum": "7.0.0",
-          "verified": "7.2.3"
+          "minimum": "8.0.2",
+          "verified": "8.0.2"
         }
       }
     ],
