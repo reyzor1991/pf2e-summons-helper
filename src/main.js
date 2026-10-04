@@ -384,6 +384,13 @@ async function createProtectorTree(message, spellLevel) {
         "system.attributes.hp.max": spellLevel * 10
     });
     await tokDoc[0].actor.update({"system.attributes.hp.value": spellLevel * 10});
+
+    await addEffectToMinion(tokDoc[0].actor, minionOwner, message.token, {
+        "expiry": "turn-end",
+        "sustained": false,
+        "unit": "minutes",
+        "value": 1
+    });
 }
 
 async function mirrorsReflection(message) {
