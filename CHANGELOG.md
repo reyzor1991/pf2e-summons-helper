@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 1.1.1
+- Fix ownership of summoned creature
+
 ## Version 1.1.0
 - v14
 

@@ -377,7 +377,7 @@ async function createProtectorTree(message, spellLevel) {
     if (!tokDoc || !tokDoc[0]) {
         return
     }
-    await socketlibSocket.executeAsGM("addOwnership", tokDoc[0].actor.uuid, message?.user?.id || game.userId);
+    await socketlibSocket.executeAsGM("addOwnership", tokDoc[0].uuid, message?.user?.id || game.userId);
     await tokDoc[0].actor.update({
         [`flags.${moduleName}.owner`]: message.actor.uuid,
         "system.details.alliance": message.actor.alliance,
@@ -483,7 +483,7 @@ async function spawnMinion(actorUuid, spell, owner) {
     if (!tokDoc) {
         return
     }
-    await socketlibSocket.executeAsGM("addOwnership", tokDoc[0].actor.uuid, game.userId);
+    await socketlibSocket.executeAsGM("addOwnership", tokDoc[0].uuid, game.userId);
     // await tokDoc[0].update({delta: existed.toObject()});
     await tokDoc[0].actor.update({"system.traits.value": [...tokDoc[0].actor.system.traits.value, "summoned"]})
 
@@ -546,7 +546,7 @@ const setupSocket = () => {
 
 async function addOwnership(actorUuid, userId) {
     let actor = await fromUuid(actorUuid);
-    await actor.update({[`ownership.${userId}`]: 3})
+    await actor.update({[`delta.ownership.${userId}`]: 3})
 }
 
 async function addToFolder(uuid) {
